@@ -1,17 +1,18 @@
 import { useState } from'react'
 import type { Entry } from '@/models/types'
-import { cx, relativeTime } from '@/lib/utils'
+import { cx, relativeTime, formatYmd } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
 import './EntryList.css'
 
 interface EntryListProps {
   entries: Entry[]
   activeId: string | null
+  showDate?: boolean
   onSelect: (id: string) => void
   onReorder: (orderedIds: string[]) => void
 }
 
-export function EntryList({ entries, activeId, onSelect, onReorder }: EntryListProps) {
+export function EntryList({ entries, activeId, showDate = false, onSelect, onReorder }: EntryListProps) {
   const [dragId, setDragId] = useState<string | null>(null)
   const [overId, setOverId] = useState<string | null>(null)
 
@@ -62,7 +63,11 @@ export function EntryList({ entries, activeId, onSelect, onReorder }: EntryListP
             onClick={() => onSelect(entry.id)}
           >
             <span className="entry-item__title">{entry.title || 'Untitled'}</span>
-            <span className="entry-item__time">{relativeTime(entry.updatedAt)}</span>
+            <span className="entry-item__time">
+              {showDate && entry.entryDate
+                ? formatYmd(entry.entryDate)
+                : relativeTime(entry.updatedAt)}
+            </span>
           </button>
         </li>
       ))}

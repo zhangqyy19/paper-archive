@@ -52,6 +52,27 @@ export function formatDate(iso: string): string {
   })
 }
 
+/** Today as a calendar date string "YYYY-MM-DD" in the user's local time. */
+export function todayYmd(): string {
+  const d = new Date()
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${day}`
+}
+
+/**
+ * Format a calendar date string "YYYY-MM-DD" as "YYYY/MM/DD" — a locale-neutral
+ * English numeric format. Parsed manually to avoid timezone drift (which a bare
+ * `new Date("YYYY-MM-DD")` would introduce by assuming UTC).
+ */
+export function formatYmd(ymd: string): string {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(ymd)
+  if (!match) return ''
+  const [, y, m, d] = match
+  return `${y}/${m}/${d}`
+}
+
 /** Debounce a function by `wait` ms. Returns a cancelable wrapper. */
 export function debounce<A extends unknown[]>(
   fn: (...args: A) => void,

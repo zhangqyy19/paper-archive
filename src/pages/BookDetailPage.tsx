@@ -53,6 +53,7 @@ export function BookDetailPage() {
   )
 
   const format = book ? getFormat(book.format) : null
+  const isDiary = book?.format === 'diary'
   const term =
     book?.format === 'custom' && book.customTerms
       ? book.customTerms
@@ -67,7 +68,11 @@ export function BookDetailPage() {
     setActiveId(entry.id)
   }
 
-  const handleSave = async (patch: { title: string; content: string }) => {
+  const handleSave = async (patch: {
+    title: string
+    content: string
+    entryDate?: string
+  }) => {
     if (!activeEntry) return
     const updated = await repo.updateEntry(activeEntry.id, patch)
     if (updated) {
@@ -129,6 +134,7 @@ export function BookDetailPage() {
           <EntryList
             entries={entries}
             activeId={activeId}
+            showDate={isDiary}
             onSelect={setActiveId}
             onReorder={reorder}
           />
@@ -147,7 +153,7 @@ export function BookDetailPage() {
                 aria-label={`Delete this ${term.singular.toLowerCase()}`}
               />
             </div>
-            <Editor key={activeEntry.id} entry={activeEntry} onSave={handleSave} />
+            <Editor key={activeEntry.id} entry={activeEntry} showDate={isDiary} onSave={handleSave} />
           </div>
         ) : (
           <EmptyState

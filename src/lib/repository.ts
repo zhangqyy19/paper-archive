@@ -1,7 +1,7 @@
 import type { Book, BookCover, BookFormatId, Entry } from '@/models/types'
 import { getFormat } from '@/models/formats'
 import type { StorageProvider } from '@/storage/StorageProvider'
-import { uid, now } from './utils'
+import { uid, now, todayYmd } from './utils'
 
 /** Input for creating a new book. */
 export interface NewBookInput {
@@ -88,6 +88,8 @@ export class Repository {
       order: existing.length,
       createdAt: timestamp,
       updatedAt: timestamp,
+      // Diary entries get a user-editable date, defaulting to today.
+      entryDate: book.format === 'diary' ? todayYmd() : undefined,
     }
     await this.storage.putEntry(entry)
     await this.touchBook(book.id)

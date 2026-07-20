@@ -3,11 +3,17 @@ import type { Entry } from '@/models/types'
 import { useAutoSave, type SaveStatus } from '@/lib/useAutoSave'
 import { formatDate } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
+import { DatePicker } from '@/components/ui/DatePicker'
 import './Editor.css'
 
 interface EditorProps {
   entry: Entry
-  onSave: (patch: { title: string; content: string }) => Promise<void> | void
+  showDate?: boolean
+  onSave: (patch: {
+    title: string
+    content: string
+    entryDate?: string
+  }) => Promise<void> | void
 }
 
 function StatusLabel({ status }: { status: SaveStatus }) {
@@ -27,15 +33,17 @@ function StatusLabel({ status }: { status: SaveStatus }) {
   }
 }
 
-export function Editor({ entry, onSave }: EditorProps) {
+export function Editor({ entry, showDate = false, onSave }: EditorProps) {
   const [title, setTitle] = useState(entry.title)
   const [content, setContent] = useState(entry.content)
+  const [entryDate, setEntryDate] = useState(entry.entryDate ?? '')
   const areaRef = useRef<HTMLTextAreaElement>(null)
 
   // Reset local state when switching to a different entry.
   useEffect(() => {
     setTitle(entry.title)
     setContent(entry.content)
+    setEntryDate(entry.entryDate ?? '')
   }, [entry.id])
 
   // Auto-grow the textarea to fit content.
@@ -47,7 +55,7 @@ export function Editor({ entry, onSave }: EditorProps) {
   }, [content])
 
   const { status } = useAutoSave({
-    value: { title, content },
+    value: { title, content, entryDate: showDate ? entryDate : undefined },
     onSave,
     delay: 700,
   })
@@ -55,7 +63,15 @@ export function Editor({ entry, onSave }: EditorProps) {
   return (
     <div className="editor">
       <div className="editor__bar">
-        <span className="editor__date">{formatDate(entry.updatedAt)}</span>
+        {showDate ? (
+          <DatePicker
+            value={entryDate}
+            onChange={setEntryDate}
+            ariaLabel="Entry date"
+          />
+        ) : (
+          <span className="editor__date">{formatDate(entry.updatedAt)}</span>
+        )}
         <StatusLabel status={status} />
       </div>
 

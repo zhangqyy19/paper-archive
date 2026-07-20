@@ -49,6 +49,12 @@ export interface Entry {
   order: number
   createdAt: string // ISO string
   updatedAt: string // ISO string
+  /**
+   * A user-chosen date for the entry (e.g. the day a diary entry is about),
+   * as a calendar date string "YYYY-MM-DD". Distinct from createdAt/updatedAt,
+   * which track when the record was made or last edited.
+   */
+  entryDate?: string
   // Future-proofing (unused for now, structured for later):
   tags?: string[]
   favorite?: boolean
