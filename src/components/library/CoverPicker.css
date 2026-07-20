@@ -1,0 +1,35 @@
+.cover-picker {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.6rem;
+}
+
+.cover-picker__swatch {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: var(--radius-sm);
+  border: 1px solid;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+  transition:
+    transform var(--ease-fast),
+    box-shadow var(--ease-fast);
+}
+
+.cover-picker__swatch:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.cover-picker__swatch.is-selected {
+  box-shadow:
+    0 0 0 2px var(--color-surface),
+    0 0 0 4px var(--color-accent);
+}
+
+.cover-picker__check {
+  display: grid;
+  place-items: center;
+}

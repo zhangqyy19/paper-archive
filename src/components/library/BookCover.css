@@ -1,0 +1,139 @@
+.book-cover {
+  --cover-w: 9rem;
+  --cover-h: 12.4rem;
+  position: relative;
+  width: var(--cover-w);
+  height: var(--cover-h);
+  border-radius: 4px 7px 7px 4px;
+  flex-shrink: 0;
+  transform-style: preserve-3d;
+}
+
+.book-cover--sm {
+  --cover-w: 5rem;
+  --cover-h: 6.9rem;
+}
+
+.book-cover--lg {
+  --cover-w: 12rem;
+  --cover-h: 16.5rem;
+}
+
+/* Right-hand page block, peeking out to fake thickness. */
+.book-cover__pages {
+  position: absolute;
+  top: 2%;
+  right: -3px;
+  width: 8px;
+  height: 96%;
+  border-radius: 0 3px 3px 0;
+  background: repeating-linear-gradient(
+    to right,
+    #f4efe4,
+    #f4efe4 1px,
+    #e4ddcc 2px
+  );
+  box-shadow: inset -1px 0 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Darker spine gradient on the left edge. */
+.book-cover__spine {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px 7px 7px 4px;
+  background: linear-gradient(
+    to right,
+    var(--cover-shade) 0%,
+    var(--cover-shade) 4%,
+    var(--cover-base) 10%,
+    var(--cover-base) 100%
+  );
+}
+
+.book-cover__face {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px 7px 7px 4px;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--cover-edge) 0%,
+    var(--cover-base) 30%,
+    var(--cover-base) 70%,
+    var(--cover-shade) 100%
+  );
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 2px 0 6px rgba(0, 0, 0, 0.18),
+    0 6px 18px rgba(40, 33, 24, 0.18);
+}
+
+.book-cover__image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* A soft diagonal light sweep. */
+.book-cover__sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.14) 0%,
+    rgba(255, 255, 255, 0) 34%
+  );
+  pointer-events: none;
+}
+
+.book-cover__content {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.9rem;
+  padding: 1.2rem 1rem 1.2rem 1.4rem;
+  text-align: center;
+}
+
+.book-cover__format {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  color: var(--cover-ink);
+  border: 1px solid color-mix(in srgb, var(--cover-ink) 40%, transparent);
+  opacity: 0.85;
+}
+
+.book-cover__title {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.02rem;
+  line-height: 1.3;
+  color: var(--cover-ink);
+  letter-spacing: 0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.book-cover--sm .book-cover__title {
+  font-size: 0.72rem;
+  -webkit-line-clamp: 3;
+}
+
+.book-cover--sm .book-cover__format {
+  width: 1.4rem;
+  height: 1.4rem;
+}
+
+.book-cover--lg .book-cover__title {
+  font-size: 1.35rem;
+}

@@ -1,0 +1,60 @@
+.format-selector {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+.format-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem;
+  text-align: left;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition:
+    border-color var(--ease-fast),
+    box-shadow var(--ease-fast),
+    transform var(--ease-fast);
+}
+
+.format-card:hover {
+  border-color: var(--color-border-strong);
+  transform: translateY(-1px);
+}
+
+.format-card.is-selected {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-accent-soft);
+}
+
+.format-card__icon {
+  display: grid;
+  place-items: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-sunken);
+  flex-shrink: 0;
+}
+
+.format-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.format-card__name {
+  font-family: var(--font-serif);
+  font-size: 1rem;
+  color: var(--color-ink);
+}
+
+.format-card__sub {
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--color-ink-soft);
+}
