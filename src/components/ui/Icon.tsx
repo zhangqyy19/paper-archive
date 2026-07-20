@@ -19,6 +19,19 @@ export type IconName =
   | 'download'
   | 'upload'
   | 'check'
+  | 'bold'
+  | 'italic'
+  | 'underline'
+  | 'strikethrough'
+  | 'listBullet'
+  | 'listOrdered'
+  | 'alignLeft'
+  | 'alignCenter'
+  | 'alignRight'
+  | 'indent'
+  | 'outdent'
+  | 'lineHeight'
+  | 'clearFormat'
 
 interface IconProps {
   name: IconName
@@ -127,6 +140,62 @@ const PATHS: Record<string, JSX.Element> = {
     </>
   ),
   check: <path d="M5 12l5 5 9-11" />,
+  bold: <path d="M7 5h6a3.5 3.5 0 0 1 0 7H7zm0 7h7a3.5 3.5 0 0 1 0 7H7z" />,
+  italic: <path d="M10 5h7M7 19h7M14 5l-4 14" />,
+  underline: (
+    <>
+      <path d="M7 4v6a5 5 0 0 0 10 0V4" />
+      <path d="M5 20h14" />
+    </>
+  ),
+  strikethrough: (
+    <>
+      <path d="M4 12h16" />
+      <path d="M7 8a4 3 0 0 1 8-1M8 16a4 3 0 0 0 8 0" />
+    </>
+  ),
+  listBullet: (
+    <>
+      <path d="M9 6h11M9 12h11M9 18h11" />
+      <circle cx="4.5" cy="6" r="1" />
+      <circle cx="4.5" cy="12" r="1" />
+      <circle cx="4.5" cy="18" r="1" />
+    </>
+  ),
+  listOrdered: (
+    <>
+      <path d="M10 6h10M10 12h10M10 18h10" />
+      <path d="M4 5.5h1.5V9M4 9h3" />
+      <path d="M4 15.5c0-.6.5-1 1.2-1s1.3.5 1.3 1.1c0 1.2-2.5 1.7-2.5 3.4H7" />
+    </>
+  ),
+  alignLeft: <path d="M4 6h16M4 10h10M4 14h16M4 18h10" />,
+  alignCenter: <path d="M4 6h16M7 10h10M4 14h16M7 18h10" />,
+  alignRight: <path d="M4 6h16M10 10h10M4 14h16M10 18h10" />,
+  indent: (
+    <>
+      <path d="M11 6h9M11 12h9M11 18h9M4 6h5" />
+      <path d="M4 9l3 3-3 3" />
+    </>
+  ),
+  outdent: (
+    <>
+      <path d="M11 6h9M11 12h9M11 18h9M4 6h5" />
+      <path d="M7 9l-3 3 3 3" />
+    </>
+  ),
+  lineHeight: (
+    <>
+      <path d="M9 6h11M9 12h11M9 18h11" />
+      <path d="M4 4v16M2.5 6 4 4 5.5 6M2.5 18 4 20 5.5 18" />
+    </>
+  ),
+  clearFormat: (
+    <>
+      <path d="M6 5h13M9 5l-3 14M14 5l-1 5" />
+      <path d="M13.5 15.5l5 5M18.5 15.5l-5 5" />
+    </>
+  ),
 }
 
 export function Icon({ name, size = 20, strokeWidth = 1.6, className }: IconProps) {

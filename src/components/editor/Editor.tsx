@@ -4,6 +4,7 @@ import { useAutoSave, type SaveStatus } from '@/lib/useAutoSave'
 import { formatDate } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
 import { DatePicker } from '@/components/ui/DatePicker'
+import { RichToolbar } from './RichToolbar'
 import './Editor.css'
 
 interface EditorProps {
@@ -33,32 +34,53 @@ function StatusLabel({ status }: { status: SaveStatus }) {
   }
 }
 
+/**
+ * Older entries stored plain text. If the content has no HTML tags, escape it
+ * and preserve line breaks so it renders correctly in the rich editor.
+ */
+function toInitialHtml(raw: string): string {
+  if (!raw) return ''
+  const looksLikeHtml = /<[a-z][\s\S]*>/i.test(raw)
+  if (looksLikeHtml) return raw
+  const amp = String.fromCharCode(38) + 'amp;'
+  const lt = String.fromCharCode(38) + 'lt;'
+  const gt = String.fromCharCode(38) + 'gt;'
+  const escaped = raw
+    .replace(/&/g, amp)
+    .replace(/</g, lt)
+    .replace(/>/g, gt)
+  return escaped
+    .split(/\n/)
+    .map((line) => `<div>${line || '<br>'}</div>`)
+    .join('')
+}
+
 export function Editor({ entry, showDate = false, onSave }: EditorProps) {
   const [title, setTitle] = useState(entry.title)
   const [content, setContent] = useState(entry.content)
   const [entryDate, setEntryDate] = useState(entry.entryDate ?? '')
-  const areaRef = useRef<HTMLTextAreaElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
 
-  // Reset local state when switching to a different entry.
+  // Reset local state and re-seed the editable body when switching entries.
   useEffect(() => {
     setTitle(entry.title)
     setContent(entry.content)
     setEntryDate(entry.entryDate ?? '')
+    if (bodyRef.current) {
+      bodyRef.current.innerHTML = toInitialHtml(entry.content)
+    }
   }, [entry.id])
-
-  // Auto-grow the textarea to fit content.
-  useEffect(() => {
-    const el = areaRef.current
-    if (!el) return
-    el.style.height = 'auto'
-    el.style.height = `${el.scrollHeight}px`
-  }, [content])
 
   const { status } = useAutoSave({
     value: { title, content, entryDate: showDate ? entryDate : undefined },
     onSave,
     delay: 700,
   })
+
+  // Pull the current HTML out of the editable body into state (debounced-saved).
+  const syncBody = () => {
+    if (bodyRef.current) setContent(bodyRef.current.innerHTML)
+  }
 
   return (
     <div className="editor">
@@ -75,6 +97,8 @@ export function Editor({ entry, showDate = false, onSave }: EditorProps) {
         <StatusLabel status={status} />
       </div>
 
+      <RichToolbar onCommand={syncBody} getEditor={() => bodyRef.current} />
+
       <div className="editor__paper">
         <input
           className="editor__title"
@@ -83,13 +107,16 @@ export function Editor({ entry, showDate = false, onSave }: EditorProps) {
           placeholder="Untitled"
           aria-label="Entry title"
         />
-        <textarea
-          ref={areaRef}
+        <div
+          ref={bodyRef}
           className="editor__content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Begin writing…"
+          contentEditable
+          suppressContentEditableWarning
+          role="textbox"
+          aria-multiline="true"
           aria-label="Entry content"
+          data-placeholder="Begin writing…"
+          onInput={syncBody}
         />
       </div>
     </div>
