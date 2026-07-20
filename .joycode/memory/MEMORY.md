@@ -1,1 +1,0 @@
-- [Library 写作应用项目](project_library_app.md) — paper-archive 仓库是一个名为 Library 的静态个人写作 Web 应用(React+TS+Vite),部署到 GitHub Pages
