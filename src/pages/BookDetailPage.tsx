@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { Book, Entry } from '@/models/types'
+import type { Book, Entry, EntryRef } from '@/models/types'
 import { getFormat } from '@/models/formats'
 import { useLibrary, useEntries } from '@/lib/LibraryContext'
 import { Button } from '@/components/ui/Button'
@@ -90,6 +90,16 @@ export function BookDetailPage() {
     await refresh()
   }
 
+  // Follow a cross-journal reference: stay in place for same-book links,
+  // otherwise navigate to the target book (its first entry auto-selects).
+  const handleOpenRef = (ref: EntryRef, target: Entry) => {
+    if (ref.bookId === id) {
+      setActiveId(target.id)
+    } else {
+      navigate(`/book/${ref.bookId}`)
+    }
+  }
+
   // Dispatch to the right editor based on the format's declared editor kind.
   // Unimplemented kinds fall back to the generic text editor for now; each
   // journal type replaces its case here as it's built out. This keeps core UI
@@ -97,7 +107,7 @@ export function BookDetailPage() {
   const renderEditor = (entry: Entry) => {
     switch (editorKind) {
       case 'recipe':
-        return <RecipeEditor key={entry.id} entry={entry} onSave={handleSave} />
+        return <RecipeEditor key={entry.id} entry={entry} onSave={handleSave} onOpenRef={handleOpenRef} />
       case 'poetry':
         return <PoetryEditor key={entry.id} entry={entry} onSave={handleSave} />
       case 'dream':

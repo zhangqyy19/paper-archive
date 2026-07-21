@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Entry, RecipeData, RecipeMedia } from '@/models/types'
+import type { Entry, EntryRef, RecipeData, RecipeMedia } from '@/models/types'
 import { useAutoSave, type SaveStatus } from '@/lib/useAutoSave'
 import {
   formatDate,
@@ -10,6 +10,7 @@ import {
 } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
 import { RichToolbar } from './RichToolbar'
+import { ReferencesSection } from '@/components/refs/ReferencesSection'
 import './Editor.css'
 import './RecipeEditor.css'
 
@@ -19,7 +20,10 @@ interface RecipeEditorProps {
     title: string
     content: string
     recipe: RecipeData
+    refs: EntryRef[]
   }) => Promise<void> | void
+  /** Jump to a referenced entry when its card is clicked. */
+  onOpenRef?: (ref: EntryRef, entry: Entry) => void
 }
 
 function StatusLabel({ status }: { status: SaveStatus }) {
@@ -45,7 +49,7 @@ function seedHtml(el: HTMLDivElement | null, raw: string) {
   el.innerHTML = raw ?? ''
 }
 
-export function RecipeEditor({ entry, onSave }: RecipeEditorProps) {
+export function RecipeEditor({ entry, onSave, onOpenRef }: RecipeEditorProps) {
   const base: RecipeData = entry.recipe ?? {
     ingredients: '',
     instructions: '',
@@ -59,6 +63,7 @@ export function RecipeEditor({ entry, onSave }: RecipeEditorProps) {
   const [servings, setServings] = useState(base.servings ?? '')
   const [prepTime, setPrepTime] = useState(base.prepTime ?? '')
   const [cookTime, setCookTime] = useState(base.cookTime ?? '')
+  const [refs, setRefs] = useState<EntryRef[]>(entry.refs ?? [])
 
   const ingRef = useRef<HTMLDivElement>(null)
   const insRef = useRef<HTMLDivElement>(null)
@@ -80,6 +85,7 @@ export function RecipeEditor({ entry, onSave }: RecipeEditorProps) {
     setServings(r.servings ?? '')
     setPrepTime(r.prepTime ?? '')
     setCookTime(r.cookTime ?? '')
+    setRefs(entry.refs ?? [])
    seedHtml(ingRef.current, r.ingredients)
     seedHtml(insRef.current, r.instructions)
   }, [entry.id])
@@ -97,6 +103,7 @@ export function RecipeEditor({ entry, onSave }: RecipeEditorProps) {
         cookTime: cookTime || undefined,
         sourceUrl: base.sourceUrl,
       },
+      refs,
     },
     onSave,
     delay: 700,
@@ -311,6 +318,14 @@ export function RecipeEditor({ entry, onSave }: RecipeEditorProps) {
             ))}
           </div>
         </section>
+
+        <ReferencesSection
+          currentBookId={entry.bookId}
+          refs={refs}
+          onChange={setRefs}
+          onOpen={onOpenRef}
+          label="Related & sources"
+        />
       </div>
     </div>
   )

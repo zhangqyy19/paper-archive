@@ -1,0 +1,90 @@
+.reflist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.refcard {
+  display: flex;
+  align-items: stretch;
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-accent) 4%, var(--surface));
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.refcard:hover {
+  border-color: color-mix(in srgb, var(--color-accent) 40%, var(--color-line));
+}
+
+.refcard.is-missing {
+  opacity: 0.6;
+  background: none;
+}
+
+.refcard__body {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.55rem 0.7rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--color-ink);
+}
+
+.refcard__body:disabled {
+  cursor: default;
+}
+
+.refcard__icon {
+  display: inline-flex;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+.refcard__text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  overflow:hidden;
+}
+
+.refcard__title {
+  font-family: var(--font-serif-soft);
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.refcard__book {
+  font-size: 0.78rem;
+  color: var(--color-ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.refcard__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  background: none;
+  border: none;
+  border-left: 1px solid var(--color-line);
+  cursor: pointer;
+  color: var(--color-ink-faint);
+}
+
+.refcard__remove:hover {
+  color: var(--color-ink);
+  background: color-mix(in srgb, var(--color-ink) 6%, transparent);
+}
