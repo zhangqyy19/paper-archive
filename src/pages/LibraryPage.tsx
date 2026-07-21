@@ -8,6 +8,7 @@ import { Select } from '@/components/ui/Select'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { BookCard } from '@/components/library/BookCard'
 import { BookCreatorModal } from '@/components/library/BookCreatorModal'
+import { RenameDialog } from '@/components/library/RenameDialog'
 import './LibraryPage.css'
 
 const SORT_OPTIONS = [
@@ -30,11 +31,12 @@ function sortBooks(books: Book[], sort: LibrarySort): Book[] {
 }
 
 export function LibraryPage() {
-  const { books, loading, error, createBook } = useLibrary()
+  const { books, loading, error, createBook, updateBook } = useLibrary()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<LibrarySort>('recent')
   const [creating, setCreating] = useState(false)
+  const [renaming, setRenaming] = useState<Book | null>(null)
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -109,7 +111,7 @@ export function LibraryPage() {
       ) : (
         <div className="library__grid fade-in">
           {visible.map((book) => (
-            <BookCard key={book.id} book={book} onOpen={openBook} />
+            <BookCard key={book.id} book={book} onOpen={openBook} onRename={setRenaming} />
           ))}
         </div>
       )}
@@ -118,6 +120,15 @@ export function LibraryPage() {
         open={creating}
         onClose={() => setCreating(false)}
         onCreate={handleCreate}
+      />
+
+      <RenameDialog
+        open={renaming !== null}
+        currentTitle={renaming?.title ?? ''}
+        onClose={() => setRenaming(null)}
+        onRename={(title) => {
+          if (renaming) void updateBook(renaming.id, { title })
+        }}
       />
     </div>
   )

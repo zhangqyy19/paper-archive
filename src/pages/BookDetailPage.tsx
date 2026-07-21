@@ -25,6 +25,11 @@ export function BookDetailPage() {
 
   const [book, setBook] = useState<Book | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
+  // Sidebar can be collapsed to give the writing surface full width.
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  // Inline title editing in the sidebar.
+  const [editingTitle, setEditingTitle] = useState(false)
+  const [titleDraft, setTitleDraft] = useState('')
   // 'write' shows the entry editor; 'map' shows the aggregated places map;
   // 'dashboard' shows a format-specific aggregated home (e.g. research).
   const [view, setView] = useState<'write' | 'map' | 'dashboard'>('write')
@@ -108,6 +113,23 @@ export function BookDetailPage() {
     if (updated) setBook(updated)
   }
 
+  // Begin inline editing of the book title from the sidebar.
+  const startRename = () => {
+    if (!book) return
+    setTitleDraft(book.title)
+    setEditingTitle(true)
+  }
+
+  // Commit a renamed title (no-op on empty/unchanged).
+  const commitRename = async () => {
+    setEditingTitle(false)
+    if (!book) return
+    const next = titleDraft.trim()
+    if (!next || next === book.title) return
+    const updated = await repo.updateBook(book.id, { title: next })
+    if (updated) setBook(updated)
+  }
+
   const handleDelete = async () => {
     if (!activeEntry) return
     await repo.deleteEntry(activeEntry.id)
@@ -178,20 +200,53 @@ export function BookDetailPage() {
   }
 
   return (
-    <div className="book-detail">
+    <div className={`book-detail${sidebarCollapsed ? ' is-collapsed' : ''}`}>
       <aside className="book-detail__sidebar">
         <div className="book-detail__side-head">
-          <button
-            type="button"
-            className="book-detail__back"
-            onClick={() => navigate('/')}
-          >
-            <span className="book-detail__back-icon">‹</span> Library
-          </button>
-          <h1 className="book-detail__book-title">{book.title}</h1>
+          <div className="book-detail__side-topline">
+            <button
+              type="button"
+              className="book-detail__back"
+              onClick={() => navigate('/')}
+            >
+              <span className="book-detail__back-icon">‹</span> Library
+            </button>
+            <button
+              type="button"
+              className="book-detail__collapse"
+              onClick={() => setSidebarCollapsed(true)}
+              aria-label="Collapse sidebar"
+              title="Collapse sidebar"
+            >
+              <Icon name="chevronLeft" size={16} />
+            </button>
+          </div>
+
+          {editingTitle ? (
+            <input
+              className="book-detail__title-input"
+              value={titleDraft}
+              autoFocus
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onBlur={commitRename}
+             onKeyDown={(e) => {
+                if (e.key === 'Enter') commitRename()
+                if (e.key === 'Escape') setEditingTitle(false)
+              }}
+              aria-label="Book title"
+            />
+          ) : (
+            <h1
+              className="book-detail__book-title"
+              onClick={startRename}
+              title="Click to rename"
+            >
+              {book.title}
+            </h1>
+          )}
           <p className="book-detail__book-meta">
             {entries.length} {entries.length === 1 ? term.singular : term.plural}
-          </p>
+      </p>
           <Button variant="secondary" icon="plus" onClick={handleCreateEntry}>
             New {term.singular.toLowerCase()}
           </Button>
@@ -209,6 +264,18 @@ export function BookDetailPage() {
           />
         )}
       </aside>
+
+      {sidebarCollapsed && (
+        <button
+          type="button"
+          className="book-detail__expand"
+          onClick={() => setSidebarCollapsed(false)}
+          aria-label="Expand sidebar"
+          title="Show sidebar"
+        >
+          <Icon name="grip" size={18} />
+        </button>
+      )}
 
       <main className="book-detail__main">
         {hasMap && (

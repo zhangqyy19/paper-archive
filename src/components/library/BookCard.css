@@ -64,3 +64,48 @@
   color: var(--color-ink-faint);
   margin-top: 0.15rem;
 }
+
+.book-card__menu {
+  position: fixed;
+  z-index: 60;
+  min-width: 9rem;
+  padding: 0.3rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 12px 32px rgba(40, 33, 24, 0.22);
+  animation: book-card__menu-in 0.12s ease;
+}
+
+@keyframes book-card__menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.book-card__menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  padding: 0.5rem 0.65rem;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--color-ink);
+  text-align: left;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--ease-fast);
+}
+
+.book-card__menu-item:hover {
+  background: var(--color-accent-soft);
+  color: var(--color-accent);
+}

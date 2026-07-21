@@ -5,6 +5,39 @@
   background: var(--color-surface);
 }
 
+/* Collapsed: hide the sidebar column entirely; a floating tab re-opens it. */
+.book-detail.is-collapsed {
+  grid-template-columns: 0 1fr;
+}
+
+.book-detail.is-collapsed .book-detail__sidebar {
+  display: none;
+}
+
+/* Floating tab to re-open a collapsed sidebar. */
+.book-detail__expand {
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 20;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.2rem;
+  height: 2.2rem;
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-hairline, rgba(0, 0, 0, 0.1));
+  border-radius: var(--radius-md);
+  color: var(--color-ink-soft);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm, 0 2px 6px rgba(0, 0, 0, 0.1));
+  transition: color var(--ease-fast), background var(--ease-fast);
+}
+
+.book-detail__expand:hover {
+  color: var(--color-accent);
+}
+
 /* ---- Sidebar ---- */
 .book-detail__sidebar {
   border-right: 1px solid var(--color-hairline, rgba(0, 0, 0, 0.08));
@@ -48,12 +81,61 @@
   line-height: 1;
 }
 
+.book-detail__side-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.book-detail__collapse {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--color-ink-faint);
+  cursor: pointer;
+  transition: color var(--ease-fast), background var(--ease-fast);
+}
+
+.book-detail__collapse:hover {
+  color: var(--color-accent);
+  background: rgba(0, 0, 0, 0.05);
+}
+
 .book-detail__book-title {
   font-family: var(--font-serif);
   font-size: 1.4rem;
   line-height: 1.2;
-  margin: 0;
   color: var(--color-ink);
+  cursor: text;
+  border-radius: var(--radius-sm);
+  padding: 0.1rem 0.25rem;
+  margin: 0 -0.25rem;
+  transition: background var(--ease-fast);
+}
+
+.book-detail__book-title:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.book-detail__title-input {
+  font-family: var(--font-serif);
+  font-size: 1.4rem;
+  line-height: 1.2;
+  color: var(--color-ink);
+  width: 100%;
+  margin: 0 -0.25rem;
+  padding: 0.1rem 0.25rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  outline: none;
 }
 
 .book-detail__book-meta {
