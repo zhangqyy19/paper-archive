@@ -11,6 +11,7 @@ import { RecipeEditor } from '@/components/editor/RecipeEditor'
 import { PoetryEditor } from '@/components/editor/PoetryEditor'
 import { DreamEditor } from '@/components/editor/DreamEditor'
 import { TravelEditor } from '@/components/editor/TravelEditor'
+import { SketchEditor } from '@/components/editor/SketchEditor'
 import { PlacesMap } from '@/components/map/PlacesMap'
 import { ResearchDashboard } from '@/components/research/ResearchDashboard'
 import { Icon } from '@/components/ui/Icon'
@@ -138,6 +139,8 @@ export function BookDetailPage() {
         return <DreamEditor key={entry.id} entry={entry} onSave={handleSave} onOpenRef={handleOpenRef} />
       case 'travel':
         return <TravelEditor key={entry.id} entry={entry} onSave={handleSave} onOpenRef={handleOpenRef} />
+      case 'sketch':
+        return <SketchEditor key={entry.id} entry={entry} onSave={handleSave} />
       case 'text':
       default:
         return (

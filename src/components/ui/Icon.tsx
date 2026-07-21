@@ -8,6 +8,8 @@ export type IconName =
   | 'flask'
   | 'quill'
   | 'pencil'
+  | 'eraser'
+  | 'undo'
   | 'sparkle'
   | 'search'
   | 'plus'
@@ -103,6 +105,18 @@ const PATHS: Record<string, JSX.Element> = {
     <>
       <path d="M16.5 4.5l3 3L8 19l-4 1 1-4z" />
       <path d="M14 7l3 3" />
+    </>
+  ),
+  eraser: (
+    <>
+      <path d="M4 15l7-7 7 7-5 5H9z" />
+      <path d="M8 21h12" />
+    </>
+  ),
+  undo: (
+    <>
+      <path d="M9 7L4 12l5 5" />
+      <path d="M4 12h11a5 5 0 0 1 5 5v0" />
     </>
   ),
   sparkle: (
