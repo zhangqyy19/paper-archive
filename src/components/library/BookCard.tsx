@@ -10,9 +10,10 @@ interface BookCardProps {
   book: Book
   onOpen: (book: Book) => void
   onRename?: (book: Book) => void
+  onDelete?: (book: Book) => void
 }
 
-export function BookCard({ book, onOpen, onRename }: BookCardProps) {
+export function BookCard({ book, onOpen, onRename, onDelete }: BookCardProps) {
   const format = getFormat(book.format)
   const label =
     book.format === 'custom' && book.customTerms ? book.customTerms.plural : format.plural
@@ -37,8 +38,10 @@ export function BookCard({ book, onOpen, onRename }: BookCardProps) {
     }
   }, [menu])
 
+  const hasMenu = Boolean(onRename || onDelete)
+
   const openMenu = (e: React.MouseEvent) => {
-    if (!onRename) return
+    if (!hasMenu) return
     e.preventDefault()
     setMenu({ x: e.clientX, y: e.clientY })
   }
@@ -64,7 +67,7 @@ export function BookCard({ book, onOpen, onRename }: BookCardProps) {
         </div>
       </button>
 
-      {menu && onRename && (
+      {menu && hasMenu && (
         <div
           ref={menuRef}
           className="book-card__menu"
@@ -72,18 +75,35 @@ export function BookCard({ book, onOpen, onRename }: BookCardProps) {
           style={{ top: menu.y, left: menu.x }}
           onClick={(e) => e.stopPropagation()}
         >
-          <button
-            type="button"
-            className="book-card__menu-item"
-            role="menuitem"
-            onClick={() => {
-              setMenu(null)
-              onRename(book)
-            }}
-          >
-            <Icon name="pencil" size={16} />
-            <span>Rename</span>
-          </button>
+          {onRename && (
+            <button
+              type="button"
+              className="book-card__menu-item"
+              role="menuitem"
+              onClick={() => {
+                setMenu(null)
+                onRename(book)
+              }}
+            >
+              <Icon name="pencil" size={16} />
+              <span>Rename</span>
+            </button>
+          )}
+          {onRename && onDelete && <div className="book-card__menu-divider" />}
+          {onDelete && (
+            <button
+              type="button"
+              className="book-card__menu-item book-card__menu-item--danger"
+              role="menuitem"
+              onClick={() => {
+                setMenu(null)
+                onDelete(book)
+              }}
+            >
+              <Icon name="trash" size={16} />
+              <span>Delete</span>
+            </button>
+          )}
         </div>
       )}
     </>

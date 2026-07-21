@@ -9,6 +9,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { BookCard } from '@/components/library/BookCard'
 import { BookCreatorModal } from '@/components/library/BookCreatorModal'
 import { RenameDialog } from '@/components/library/RenameDialog'
+import { ConfirmDialog } from '@/components/library/ConfirmDialog'
 import './LibraryPage.css'
 
 const SORT_OPTIONS = [
@@ -31,12 +32,13 @@ function sortBooks(books: Book[], sort: LibrarySort): Book[] {
 }
 
 export function LibraryPage() {
-  const { books, loading, error, createBook, updateBook } = useLibrary()
+  const { books, loading, error, createBook, updateBook, deleteBook } = useLibrary()
   const navigate = useNavigate()
   const [query, setQuery] = useState('')
   const [sort, setSort] = useState<LibrarySort>('recent')
   const [creating, setCreating] = useState(false)
   const [renaming, setRenaming] = useState<Book | null>(null)
+  const [deleting, setDeleting] = useState<Book | null>(null)
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -111,7 +113,7 @@ export function LibraryPage() {
       ) : (
         <div className="library__grid fade-in">
           {visible.map((book) => (
-            <BookCard key={book.id} book={book} onOpen={openBook} onRename={setRenaming} />
+            <BookCard key={book.id} book={book} onOpen={openBook} onRename={setRenaming} onDelete={setDeleting} />
           ))}
         </div>
       )}
@@ -128,6 +130,18 @@ export function LibraryPage() {
         onClose={() => setRenaming(null)}
         onRename={(title) => {
           if (renaming) void updateBook(renaming.id, { title })
+        }}
+      />
+
+      <ConfirmDialog
+        open={deleting !== null}
+        title="Delete book"
+        message={`Delete “${deleting?.title || 'Untitled'}”? This will permanently remove the book and all of its entries. This can't be undone.`}
+        confirmLabel="Delete"
+        danger
+        onClose={() => setDeleting(null)}
+        onConfirm={() => {
+          if (deleting) void deleteBook(deleting.id)
         }}
       />
     </div>

@@ -109,3 +109,18 @@ opacity: 1;
   background: var(--color-accent-soft);
   color: var(--color-accent);
 }
+
+.book-card__menu-divider {
+  height: 1px;
+  margin: 0.25rem 0.35rem;
+  background: var(--color-border);
+}
+
+.book-card__menu-item--danger {
+  color: var(--color-danger);
+}
+
+.book-card__menu-item--danger:hover {
+  background: var(--color-danger);
+  color: #fff;
+}
