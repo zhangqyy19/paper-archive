@@ -97,6 +97,8 @@ export class Repository {
           : undefined,
       // Poem entries carry an (optional) chosen form.
       poetry: book.format === 'poetry' ? {} : undefined,
+      // Dream entries start with no flagged symbols.
+      dream: book.format === 'dream' ? {} : undefined,
     }
     await this.storage.putEntry(entry)
     await this.touchBook(book.id)

@@ -9,6 +9,7 @@ import { EntryList } from '@/components/editor/EntryList'
 import { Editor } from '@/components/editor/Editor'
 import { RecipeEditor } from '@/components/editor/RecipeEditor'
 import { PoetryEditor } from '@/components/editor/PoetryEditor'
+import { DreamEditor } from '@/components/editor/DreamEditor'
 import './BookDetailPage.css'
 
 export function BookDetailPage() {
@@ -99,6 +100,8 @@ export function BookDetailPage() {
         return <RecipeEditor key={entry.id} entry={entry} onSave={handleSave} />
       case 'poetry':
         return <PoetryEditor key={entry.id} entry={entry} onSave={handleSave} />
+      case 'dream':
+        return <DreamEditor key={entry.id} entry={entry} onSave={handleSave} />
       case 'text':
       default:
         return (

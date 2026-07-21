@@ -1,0 +1,249 @@
+/* Dream journal: writing surface + searchable symbol reference panel. */
+
+.dream__layout {
+  display: grid;
+  grid-template-columns: 1fr 20rem;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (max-width: 880px) {
+  .dream__layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dream__paper {
+  padding-bottom: 4rem;
+}
+
+/* --- Flagged symbol chips (above the dream text) --- */
+.dream__flagged {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0.25rem 0 1.25rem;
+}
+
+.dream__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--color-accent, #8b7fae) 35%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-accent, #8b7fae) 10%, var(--surface));
+  color: color-mix(in srgb, var(--color-accent, #8b7fae) 78%, var(--color-ink));
+  font-family: var(--font-sans, system-ui);
+  font-size: 0.82rem;
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+
+.dream__chip:hover {
+  background: color-mix(in srgb, var(--color-accent, #8b7fae) 18%, var(--surface));
+}
+
+.dream__chip-x {
+  opacity: 0.6;
+}
+
+/* --- Dream body --- */
+.dream__content {
+  font-family: var(--font-serif, Georgia, serif);
+  line-height: 1.8;
+  white-space: pre-wrap;
+}
+
+/* --- Symbol reference panel --- */
+.dream__panel {
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.18));
+  border-radius: var(--radius-md, 12px);
+  background: color-mix(in srgb, var(--color-accent, #8b7fae) 4%, var(--surface));
+  padding: 1rem;
+  max-height: calc(100vh - 6rem);
+}
+
+.dream__panel-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-serif-soft);
+  font-weight: 600;
+  font-size: 0.98rem;
+  color: color-mix(in srgb, var(--color-accent, #8b7fae) 80%, var(--color-ink));
+}
+
+.dream__panel-note {
+  margin: 0.4rem 0 0.85rem;
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: var(--color-ink-faint);
+  font-style: italic;
+}
+
+.dream__search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.dream__search-icon {
+  position: absolute;
+  left: 0.6rem;
+  color: var(--color-ink-faint);
+  pointer-events: none;
+}
+
+.dream__search-input {
+  width: 100%;
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.2));
+  border-radius: var(--radius-md, 10px);
+  background: var(--surface);
+  color: var(--color-ink);
+  font-family: var(--font-sans, system-ui);
+  font-size: 0.88rem;
+  padding: 0.45rem 0.6rem 0.45rem 2rem;
+  outline: none;
+}
+
+.dream__search-input:focus-visible {
+  border-color: color-mix(in srgb, var(--color-accent, #8b7fae) 60%, transparent);
+}
+
+.dream__symbols {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.dream__empty {
+  font-size: 0.85rem;
+  color: var(--color-ink-faint);
+  padding: 0.75rem 0.25rem;
+}
+
+.dream__symbol {
+  border-radius: calc(var(--radius-md, 12px) - 4px);
+  transition: background 0.12s ease;
+}
+
+.dream__symbol.is-flagged {
+  background: color-mix(in srgb, var(--color-accent, #8b7fae) 9%, transparent);
+}
+
+.dream__symbol-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.dream__symbol-head {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+  border: none;
+  background: transparent;
+  padding: 0.5rem 0.55rem;
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+}
+
+.dream__symbol-name {
+  font-family: var(--font-serif-soft);
+  font-size: 0.94rem;
+  color: var(--color-ink);
+}
+
+.dream__symbol-tagline {
+  font-size: 0.74rem;
+  color: var(--color-ink-faint);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dream__flag {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.2));
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--color-ink-faint);
+  cursor: pointer;
+  transition: all 0.14s ease;
+}
+
+.dream__flag:hover {
+  border-color: color-mix(in srgb, var(--color-accent, #8b7fae) 55%, transparent);
+  color: color-mix(in srgb, var(--color-accent, #8b7fae) 80%, var(--color-ink));
+}
+
+.dream__flag[aria-pressed='true'] {
+  border-color: transparent;
+  background: color-mix(in srgb, var(--color-accent, #8b7fae) 80%, var(--color-ink));
+  color: var(--surface);
+}
+
+.dream__symbol-body {
+  padding: 0 0.55rem 0.7rem;
+}
+
+.dream__symbol-meaning {
+  margin: 0 0 0.55rem;
+  font-size: 0.85rem;
+  line-height:1.5;
+  color: var(--color-ink);
+}
+
+.dream__interps {
+  margin: 0 0 0.6rem;
+  padding-left: 1rem;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.dream__interps li {
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--color-ink);
+}
+
+.dream__themes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.dream__theme {
+  font-family: var(--font-sans, system-ui);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  color: var(--color-ink-faint);
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.2));
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+}
+
+.dream__panel-foot {
+  margin: 0.75rem 0 0;
+  padding-top: 0.6rem;
+  border-top: 1px solid var(--color-line, rgba(120, 100, 80, 0.12));
+  font-size: 0.72rem;
+  color: var(--color-ink-faint);
+  text-align: center;
+}

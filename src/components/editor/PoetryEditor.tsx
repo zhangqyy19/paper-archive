@@ -140,9 +140,6 @@ export function PoetryEditor({ entry, onSave }: PoetryEditorProps) {
                 <span className="poetry__picker-name">
                   {style ? style.name : 'Unspecified'}
                 </span>
-                {style && (
-                  <span className="poetry__picker-tagline">{style.tagline}</span>
-                )}
               </span>
               <Icon name="chevronDown" size={16} className="poetry__picker-caret" />
             </button>
@@ -159,9 +156,6 @@ export function PoetryEditor({ entry, onSave }: PoetryEditorProps) {
                   onClick={() => selectStyle('')}
                 >
                   <span className="poetry__picker-name">Unspecified</span>
-                  <span className="poetry__picker-tagline">
-                    Write freely, no form
-                  </span>
                 </button>
                 {POEM_STYLES.map((s) => (
                   <button
@@ -176,7 +170,6 @@ export function PoetryEditor({ entry, onSave }: PoetryEditorProps) {
                     onClick={() => selectStyle(s.id)}
                   >
                     <span className="poetry__picker-name">{s.name}</span>
-                    <span className="poetry__picker-tagline">{s.tagline}</span>
                   </button>
                 ))}
               </div>
