@@ -70,6 +70,83 @@ export interface RecipeData {
   sourceUrl?: string
 }
 
+/** A geolocated place attached to a travel entry. */
+export interface GeoLocation {
+  /** Human-readable place name, e.g. "Kyoto, Japan". */
+  name: string
+  lat?: number
+  lng?: number
+  /** Whether lat/lng were resolved via geocoding (vs. entered manually). */
+  geocoded?: boolean
+}
+
+/** Structured data for travel entries: a place + a date visited. */
+export interface TravelData {
+  location?: GeoLocation
+  /** The day this place was visited, as "YYYY-MM-DD". */
+  dateVisited?: string
+}
+
+/** An available poetry form the user can compose in. */
+export type PoemStyleId =
+  | 'free-verse'
+  | 'haiku'
+  | 'sonnet'
+  | 'limerick'
+  | 'villanelle'
+  | 'blank-verse'
+  | 'concrete'
+
+/** Structured data for poem entries. */
+export interface PoetryData {
+  styleId?: PoemStyleId
+}
+
+/** Structured data for dream entries. */
+export interface DreamData {
+  /** Symbol keys (from the reference library) the writer flagged. */
+  symbols?: string[]
+}
+
+/** One or more research topics that drive a notebook's dashboard. */
+export interface ResearchData {
+  topics: string[]
+  /** User-saved source URLs / feeds shown in the dashboard. */
+  savedSources?: { id: string; label: string; url: string }[]
+}
+
+/** A single freeform object on a sketchbook canvas. */
+export interface SketchNode {
+  id: string
+  kind: 'stroke' | 'text' | 'image' | 'shape'
+  /** Serialized stroke points, text, image src, or shape geometry. */
+  data: unknown
+  x: number
+  y: number
+  /** Optional layer index for future layer support. */
+  layer?: number
+}
+
+/** Structured data for a sketchbook page: a freeform canvas. */
+export interface SketchData {
+  nodes: SketchNode[]
+  /** Canvas viewport hint (last pan/zoom), for restoring the view. */
+  viewport?: { x: number; y: number; zoom: number }
+}
+
+/**
+ * A cross-journal reference. Stored by IDs (never text) so that if the
+ * referenced entry's title changes, the rendered card updates automatically.
+ * Future: power backlinks (Obsidian-style) from these records.
+ */
+export interface EntryRef {
+  id: string
+  bookId: string
+  entryId: string
+  /** Optional anchor to a heading/section within the entry. */
+  anchor?: string
+}
+
 /** A single writing unit inside a book (an entry, chapter, poem, etc.). */
 export interface Entry {
   id: string
@@ -78,6 +155,16 @@ export interface Entry {
   content: string
   /** Structured recipe fields; only present for entries in a recipe book. */
   recipe?: RecipeData
+  /** Structured travel fields; only present in a travel journal. */
+  travel?: TravelData
+  /** Structured poem fields; only present in a poetry collection. */
+  poetry?: PoetryData
+  /** Structured dream fields; only present in a dream journal.*/
+  dream?: DreamData
+  /** Freeform canvas data; only present in a sketchbook. */
+  sketch?: SketchData
+  /** Cross-journal references inserted into this entry. */
+  refs?: EntryRef[]
   /** Manual ordering position within the book (lower comes first). */
   order: number
   createdAt: string // ISO string
@@ -105,6 +192,8 @@ export interface Book {
   cover: BookCover
   createdAt: string // ISO string
   updatedAt: string // ISO string
+  /** Research notebooks store their topics/sources at the book level. */
+  research?: ResearchData
   // Future-proofing:
   tags?: string[]
   favorite?: boolean

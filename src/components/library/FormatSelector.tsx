@@ -1,4 +1,4 @@
-import { FORMATS } from '@/models/formats'
+import { selectableFormats } from '@/models/formats'
 import type { BookFormatId } from '@/models/types'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import { cx } from '@/lib/utils'
@@ -12,7 +12,7 @@ interface FormatSelectorProps {
 export function FormatSelector({ value, onChange }: FormatSelectorProps) {
   return (
     <div className="format-selector" role="radiogroup" aria-label="Book format">
-      {FORMATS.map((f) => (
+      {selectableFormats().map((f) => (
         <button
           key={f.id}
           type="button"

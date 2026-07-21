@@ -54,8 +54,11 @@ export function BookDetailPage() {
   )
 
   const format = book ? getFormat(book.format) : null
-  const isDiary = book?.format === 'diary'
-  const isRecipe = book?.format === 'recipe'
+  const caps = format?.capabilities ?? null
+  // Core UI branches on declarative capabilities, never on the format id, so a
+  // new journal type is a formats.ts entry + its editor case below.
+  const editorKind = caps?.editor ?? 'text'
+  const datedEntries = caps?.datedEntries ?? false
   const term =
     book?.format === 'custom' && book.customTerms
       ? book.customTerms
@@ -83,6 +86,22 @@ export function BookDetailPage() {
     await repo.deleteEntry(activeEntry.id)
     setActiveId(null)
     await refresh()
+  }
+
+  // Dispatch to the right editor based on the format's declared editor kind.
+  // Unimplemented kinds fall back to the generic text editor for now; each
+  // journal type replaces its case here as it's built out. This keeps core UI
+  // free of per-format id checks — a new type is a formats.ts entry + a case.
+  const renderEditor = (entry: Entry) => {
+    switch (editorKind) {
+      case 'recipe':
+        return <RecipeEditor key={entry.id} entry={entry} onSave={handleSave} />
+      case 'text':
+      default:
+        return (
+          <Editor key={entry.id} entry={entry} showDate={datedEntries} onSave={handleSave} />
+        )
+    }
   }
 
   if (libLoading && !book) {
@@ -132,7 +151,7 @@ export function BookDetailPage() {
           <EntryList
             entries={entries}
             activeId={activeId}
-            showDate={isDiary}
+            showDate={datedEntries}
             onSelect={setActiveId}
             onReorder={reorder}
           />
@@ -151,11 +170,7 @@ export function BookDetailPage() {
                 aria-label={`Delete this ${term.singular.toLowerCase()}`}
               />
             </div>
-            {isRecipe ? (
-              <RecipeEditor key={activeEntry.id} entry={activeEntry} onSave={handleSave} />
-            ) : (
-              <Editor key={activeEntry.id} entry={activeEntry} showDate={isDiary} onSave={handleSave} />
-            )}
+            {renderEditor(activeEntry)}
           </div>
         ) : (
           <EmptyState
