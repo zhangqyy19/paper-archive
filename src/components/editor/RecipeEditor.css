@@ -1,0 +1,277 @@
+/* Recipe editor: structured ingredient / preparation areas + media. */
+
+.recipe__paper {
+  padding-bottom: 4rem;
+}
+
+/* --- Meta row (servings, prep, cook) --- */
+.recipe__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin: 0.25rem 0 1.75rem;
+}
+
+.recipe__meta-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.2));
+  border-radius: var(--radius-md, 10px);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  color: var(--color-ink-faint);
+}
+
+.recipe__meta-field input {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-family: var(--font-serif-soft);
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  width: 7rem;
+}
+
+.recipe__meta-field input::placeholder {
+  color: var(--color-ink-faint);
+  opacity: 0.7;
+}
+
+/* --- Sections --- */
+.recipe__section {
+  margin-bottom: 2rem;
+}
+
+.recipe__heading {
+  font-family: var(--font-serif);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--color-line, rgba(120, 100, 80, 0.18));
+}
+
+.recipe__field {
+  min-height: auto;
+}
+
+.recipe__ingredients {
+  min-height: 6rem;
+}
+
+.recipe__instructions {
+  min-height: 10rem;
+}
+
+/* Ingredients render as a tidy list feel even without an actual <ul>. */
+.recipe__ingredients {
+  line-height: 2rem;
+}
+
+/* --- Typographic fractions (3/4 → numerator stacked over denominator) --- */
+.frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Center the two-line stack against the surrounding text instead of sitting
+     on the baseline (which would drop it well below the words). */
+  vertical-align: middle;
+  position: relative;
+  top: -0.06em;
+  margin: 0 0.14em;
+  line-height: 0.92;
+  text-align: center;
+}
+
+.frac sup,
+.frac sub {
+  display: block;
+  font-size: 0.62em;
+  line-height: 1.05;
+  vertical-align: baseline;
+  padding: 0 0.15em;
+}
+
+.frac sup {
+  border-bottom: 1px solid currentColor;
+}
+
+/* The raw slash character is hidden — the border above acts as the bar. */
+.frac__bar {
+  display: none;
+}
+
+/* --- Media --- */
+.recipe__media-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.recipe__add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.25));
+  border-radius: var(--radius-md, 10px);
+  padding: 0.35rem 0.7rem;
+  background: transparent;
+  color: var(--color-ink-soft, var(--color-ink));
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background var(--ease-fast, 0.15s ease);
+}
+
+.recipe__add:hover {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+}
+
+.recipe__media-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.75rem 0 1rem;
+  padding: 0.85rem;
+  border: 1px dashed var(--color-line, rgba(120, 100, 80, 0.3));
+  border-radius: var(--radius-md, 10px);
+  background: color-mix(in srgb, var(--surface) 70%, transparent);
+}
+
+.recipe__kind-toggle {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+
+.recipe__kind-toggle button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.25));
+  border-radius: var(--radius-sm, 8px);
+  padding: 0.35rem 0.65rem;
+  background: transparent;
+  color: var(--color-ink-faint);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.recipe__kind-toggle button.is-active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+.recipe__media-input {
+  flex: 1;
+  min-width: 12rem;
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.25));
+  border-radius: var(--radius-sm, 8px);
+  padding: 0.45rem 0.6rem;
+  background: var(--surface);
+  font-family: var(--font-serif-soft);
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  outline: none;
+}
+
+.recipe__media-input:focus {
+  border-color: var(--color-accent);
+}
+
+.recipe__media-save {
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.recipe__media-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 1rem;
+}
+
+.recipe__media-card {
+  position: relative;
+}
+
+.recipe__video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-md, 10px);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm, 0 1px 4px rgba(0, 0, 0, 0.12));
+}
+
+.recipe__video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.recipe__media-card--link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--color-line, rgba(120, 100, 80, 0.2));
+  border-radius: var(--radius-md, 10px);
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+}
+
+.recipe__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-accent);
+  text-decoration: none;
+  font-family: var(--font-serif-soft);
+  word-break: break-all;
+}
+
+.recipe__link:hover span {
+  text-decoration: underline;
+}
+
+.recipe__media-remove {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  border: none;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-ink) 8%, transparent);
+ color: var(--color-ink-faint);
+  cursor: pointer;
+}
+
+.recipe__video .recipe__media-remove {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 2;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+}
+
+.recipe__media-remove:hover {
+  background: var(--color-danger, #c0564a);
+  color: #fff;
+}

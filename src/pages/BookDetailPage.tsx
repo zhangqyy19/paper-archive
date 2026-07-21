@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { Book } from '@/models/types'
+import type { Book, Entry } from '@/models/types'
 import { getFormat } from '@/models/formats'
 import { useLibrary, useEntries } from '@/lib/LibraryContext'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { EntryList } from '@/components/editor/EntryList'
 import { Editor } from '@/components/editor/Editor'
+import { RecipeEditor } from '@/components/editor/RecipeEditor'
 import './BookDetailPage.css'
 
 export function BookDetailPage() {
@@ -54,6 +55,7 @@ export function BookDetailPage() {
 
   const format = book ? getFormat(book.format) : null
   const isDiary = book?.format === 'diary'
+  const isRecipe = book?.format === 'recipe'
   const term =
     book?.format === 'custom' && book.customTerms
       ? book.customTerms
@@ -68,11 +70,7 @@ export function BookDetailPage() {
     setActiveId(entry.id)
   }
 
-  const handleSave = async (patch: {
-    title: string
-    content: string
-    entryDate?: string
-  }) => {
+  const handleSave = async (patch: Partial<Entry>) => {
     if (!activeEntry) return
     const updated = await repo.updateEntry(activeEntry.id, patch)
     if (updated) {
@@ -153,7 +151,11 @@ export function BookDetailPage() {
                 aria-label={`Delete this ${term.singular.toLowerCase()}`}
               />
             </div>
-            <Editor key={activeEntry.id} entry={activeEntry} showDate={isDiary} onSave={handleSave} />
+            {isRecipe ? (
+              <RecipeEditor key={activeEntry.id} entry={activeEntry} onSave={handleSave} />
+            ) : (
+              <Editor key={activeEntry.id} entry={activeEntry} showDate={isDiary} onSave={handleSave} />
+            )}
           </div>
         ) : (
           <EmptyState

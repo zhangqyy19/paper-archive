@@ -32,6 +32,10 @@ export type IconName =
   | 'outdent'
   | 'lineHeight'
   | 'clearFormat'
+  | 'video'
+  | 'link'
+  | 'clock'
+  | 'users'
 
 interface IconProps {
   name: IconName
@@ -194,6 +198,31 @@ const PATHS: Record<string, JSX.Element> = {
     <>
       <path d="M6 5h13M9 5l-3 14M14 5l-1 5" />
       <path d="M13.5 15.5l5 5M18.5 15.5l-5 5" />
+    </>
+  ),
+  video: (
+    <>
+      <rect x="3" y="6" width="13" height="12" rx="2.5" />
+      <path d="M16 10l5-3v10l-5-3z" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M10 13a4 4 0 0 0 5.7.3l3-3a4 4 0 0 0-5.7-5.7L11 6.3" />
+      <path d="M14 11a4 4 0 0 0-5.7-.3l-3 3a4 4 0 0 0 5.7 5.7L13 17.7" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3.5 2" />
+    </>
+  ),
+  users: (
+    <>
+      <circle cx="9" cy="8" r="3.5" />
+      <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
+      <path d="M16 5a3.5 3.5 0 0 1 0 7M17 20a5.5 5.5 0 0 0-3-4.9" />
     </>
   ),
 }

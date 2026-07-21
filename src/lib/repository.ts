@@ -90,6 +90,11 @@ export class Repository {
       updatedAt: timestamp,
       // Diary entries get a user-editable date, defaulting to today.
       entryDate: book.format === 'diary' ? todayYmd() : undefined,
+      // Recipe entries start with empty structured ingredient/instruction areas.
+      recipe:
+        book.format === 'recipe'
+          ? { ingredients: '', instructions: '', media: [] }
+          : undefined,
     }
     await this.storage.putEntry(entry)
     await this.touchBook(book.id)

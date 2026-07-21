@@ -39,12 +39,45 @@ export type BookCover =
   | { kind: 'color'; colorId: CoverColorId }
   | { kind: 'image'; url: string; colorId?: CoverColorId }
 
+/** A media attachment on a recipe: an embedded video or a saved link. */
+export interface RecipeMedia {
+  id: string
+  /** 'video' embeds an iframe; 'link' is a saved reference (future: crawler source). */
+  kind: 'video' | 'link'
+  /** The raw URL the user pasted. */
+  url: string
+  /** Optional human label shown for a link. */
+  label?: string
+}
+
+/**
+ * Structured data for recipe entries. Ingredients and instructions live in
+ * separate rich-text areas. `content` (on Entry) stays available for free-form
+ * notes, keeping the shape backward compatible with non-recipe entries.
+ */
+export interface RecipeData {
+  /** Rich-text HTML for the ingredient list. */
+  ingredients: string
+  /** Rich-text HTML for the preparation steps. */
+  instructions: string
+  /** Embedded videos and attached links. */
+  media?: RecipeMedia[]
+  /** Optional metadata, structured now for a future recipe crawler. */
+  servings?: string
+  prepTime?: string
+  cookTime?: string
+  /** The URL a recipe was (or will be) imported from. */
+  sourceUrl?: string
+}
+
 /** A single writing unit inside a book (an entry, chapter, poem, etc.). */
 export interface Entry {
   id: string
   bookId: string
   title: string
   content: string
+  /** Structured recipe fields; only present for entries in a recipe book. */
+  recipe?: RecipeData
   /** Manual ordering position within the book (lower comes first). */
   order: number
   createdAt: string // ISO string
