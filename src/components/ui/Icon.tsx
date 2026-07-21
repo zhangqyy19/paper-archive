@@ -36,6 +36,9 @@ export type IconName =
   | 'link'
   | 'clock'
   | 'users'
+  | 'map'
+  | 'pin'
+
 
 interface IconProps {
   name: IconName
@@ -223,6 +226,18 @@ const PATHS: Record<string, JSX.Element> = {
       <circle cx="9" cy="8" r="3.5" />
       <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
       <path d="M16 5a3.5 3.5 0 0 1 0 7M17 20a5.5 5.5 0 0 0-3-4.9" />
+    </>
+  ),
+  map: (
+    <>
+      <path d="M9 4L3 6.5v13L9 17l6 2.5 6-2.5v-13L15 6.5 9 4z" />
+      <path d="M9 4v13M15 6.5v13" />
+    </>
+  ),
+  pin: (
+    <>
+      <path d="M12 21c4-4.5 6-8 6-11a6 6 0 0 0-12 0c0 3 2 6.5 6 11z" />
+      <circle cx="12" cy="10" r="2.4" />
     </>
   ),
 }

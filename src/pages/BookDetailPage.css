@@ -82,6 +82,41 @@
   min-height: 100vh;
 }
 
+.book-detail__viewbar {
+  display: inline-flex;
+  gap: 0.25rem;
+  align-self: flex-start;
+  margin: 1rem 1.2rem 0;
+  padding: 0.25rem;
+  background: color-mix(in srgb, var(--color-ink) 5%, transparent);
+  border: 1px solid var(--color-line);
+  border-radius: 0.7rem;
+}
+
+.book-detail__viewtab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.85rem;
+  font-size: 0.85rem;
+  color: var(--color-ink-faint);
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.book-detail__viewtab:hover {
+  color: var(--color-ink);
+}
+
+.book-detail__viewtab.is-active {
+  color: var(--color-ink);
+  background: var(--color-surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
 .book-detail__toolbar {
   display: flex;
   justify-content: flex-end;

@@ -99,6 +99,8 @@ export class Repository {
       poetry: book.format === 'poetry' ? {} : undefined,
       // Dream entries start with no flagged symbols.
       dream: book.format === 'dream' ? {} : undefined,
+      // Travel entries start with no location or visit date.
+      travel: book.format === 'travel' ? {} : undefined,
     }
     await this.storage.putEntry(entry)
     await this.touchBook(book.id)

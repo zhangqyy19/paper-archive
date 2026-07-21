@@ -1,0 +1,79 @@
+.worldmap {
+  width: 100%;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-accent) 6%, var(--surface));
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.worldmap__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Sea gradient stops (SVG stop-color set via CSS) */
+.worldmap__sea-hi {
+  stop-color: color-mix(in srgb, var(--color-accent) 10%, #f4ede3);
+}
+.worldmap__sea-lo {
+  stop-color: color-mix(in srgb, var(--color-accent) 20%, #e7dccd);
+}
+
+.worldmap__grid line {
+  stroke: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  stroke-width: 0.25;
+}
+
+.worldmap__land {
+  fill: color-mix(in srgb, var(--color-accent) 32%, #d8c7ad);
+  stroke: color-mix(in srgb, var(--color-accent) 48%, #b79b74);
+  stroke-width: 0.5;
+  stroke-linejoin: round;
+  opacity: 0.9;
+}
+
+.worldmap__pin {
+  cursor: pointer;
+}
+
+.worldmap__pin-halo {
+  fill: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  transition: r 0.15s ease, fill 0.15s ease;
+}
+
+.worldmap__pin.is-active .worldmap__pin-halo {
+  fill: color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
+.worldmap__pin-dot {
+  fill: var(--color-accent);
+  stroke: #fff;
+  stroke-width: 0.5;
+}
+
+.worldmap__tip {
+  pointer-events: none;
+}
+
+.worldmap__tip-label {
+  fill: var(--color-ink);
+  font-family: var(--font-serif-soft);
+  font-size: 3.4px;
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 1.1px;
+  stroke-linejoin: round;
+}
+
+.worldmap__tip-sub {
+  fill: var(--color-ink-faint);
+  font-family: var(--font-serif-soft);
+  font-size: 2.6px;
+  paint-order: stroke;
+  stroke: #fff;
+  stroke-width: 0.9px;
+  stroke-linejoin: round;
+}

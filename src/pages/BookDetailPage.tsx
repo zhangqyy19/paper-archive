@@ -10,6 +10,9 @@ import { Editor } from '@/components/editor/Editor'
 import { RecipeEditor } from '@/components/editor/RecipeEditor'
 import { PoetryEditor } from '@/components/editor/PoetryEditor'
 import { DreamEditor } from '@/components/editor/DreamEditor'
+import { TravelEditor } from '@/components/editor/TravelEditor'
+import { PlacesMap } from '@/components/map/PlacesMap'
+import { Icon } from '@/components/ui/Icon'
 import './BookDetailPage.css'
 
 export function BookDetailPage() {
@@ -20,6 +23,8 @@ export function BookDetailPage() {
 
   const [book, setBook] = useState<Book | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
+  // 'write' shows the entry editor; 'map' shows the aggregated places map.
+  const [view, setView] = useState<'write' | 'map'>('write')
 
   // Resolve the book — prefer the already-loaded list, fall back to a direct read.
   useEffect(() => {
@@ -61,6 +66,8 @@ export function BookDetailPage() {
   // new journal type is a formats.ts entry + its editor case below.
   const editorKind = caps?.editor ?? 'text'
   const datedEntries = caps?.datedEntries ?? false
+  // Formats declaring a 'map' view (travel) get a Write/Map toggle in the main pane.
+  const hasMap = caps?.views.includes('map') ?? false
   const term =
     book?.format === 'custom' && book.customTerms
       ? book.customTerms
@@ -112,6 +119,8 @@ export function BookDetailPage() {
         return <PoetryEditor key={entry.id} entry={entry} onSave={handleSave} />
       case 'dream':
         return <DreamEditor key={entry.id} entry={entry} onSave={handleSave} />
+      case 'travel':
+        return <TravelEditor key={entry.id} entry={entry} onSave={handleSave} onOpenRef={handleOpenRef} />
       case 'text':
       default:
         return (
@@ -175,7 +184,35 @@ export function BookDetailPage() {
       </aside>
 
       <main className="book-detail__main">
-        {activeEntry ? (
+        {hasMap && (
+          <div className="book-detail__viewbar">
+            <button
+              type="button"
+              className={`book-detail__viewtab${view === 'write' ? ' is-active' : ''}`}
+              onClick={() => setView('write')}
+            >
+              <Icon name="pin" size={15} /> Write
+            </button>
+            <button
+              type="button"
+              className={`book-detail__viewtab${view === 'map' ? ' is-active' : ''}`}
+              onClick={() => setView('map')}
+            >
+              <Icon name="map" size={15} /> Map
+            </button>
+          </div>
+        )}
+
+        {hasMap && view === 'map' ? (
+          <PlacesMap
+            entries={entries}
+            activeId={activeId}
+            onSelect={(entryId) => {
+              setActiveId(entryId)
+              setView('write')
+            }}
+          />
+        ) : activeEntry ? (
           <div className="book-detail__editor-wrap">
             <div className="book-detail__toolbar">
               <Button

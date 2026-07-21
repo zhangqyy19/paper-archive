@@ -1,0 +1,116 @@
+.placesmap {
+  --color-accent: #c08457;
+  max-width: 62rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+.placesmap--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.placesmap__head {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.placesmap__title {
+  font-family: var(--font-serif);
+  font-size: 1.9rem;
+  color: var(--color-ink);
+  margin: 0;
+}
+
+.placesmap__count {
+  font-family: var(--font-serif-soft);
+  color: var(--color-ink-faint);
+  font-size: 0.9rem;
+  margin: 0.35rem 0 0;
+}
+
+.placesmap__body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+}
+
+@media (min-width: 860px) {
+  .placesmap__body {
+    grid-template-columns: 1.6fr 1fr;
+    align-items: start;
+  }
+}
+
+.placesmap__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  max-height: 32rem;
+  overflow-y: auto;
+}
+
+.placesmap__item {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.placesmap__item:hover {
+  background: color-mix(in srgb, var(--color-accent) 7%, transparent);
+}
+
+.placesmap__item.is-active {
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  border-color: color-mix(in srgb, var(--color-accent) 40%, transparent);
+}
+
+.placesmap__item-icon {
+  color: var(--color-accent);
+  display: inline-flex;
+}
+
+.placesmap__item-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.placesmap__item-title {
+  font-family: var(--font-serif-soft);
+  font-size: 0.95rem;
+  color: var(--color-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placesmap__item-place {
+  font-family: var(--font-serif-soft);
+  font-size: 0.8rem;
+  color: var(--color-ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.placesmap__item-date {
+  font-family: var(--font-serif-soft);
+  font-size: 0.75rem;
+  color: var(--color-ink-faint);
+  flex-shrink: 0;
+}
