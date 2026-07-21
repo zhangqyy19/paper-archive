@@ -95,6 +95,8 @@ export class Repository {
         book.format === 'recipe'
           ? { ingredients: '', instructions: '', media: [] }
           : undefined,
+      // Poem entries carry an (optional) chosen form.
+      poetry: book.format === 'poetry' ? {} : undefined,
     }
     await this.storage.putEntry(entry)
     await this.touchBook(book.id)
