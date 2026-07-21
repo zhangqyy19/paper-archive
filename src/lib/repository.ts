@@ -1,4 +1,4 @@
-import type { Book, BookCover, BookFormatId, Entry } from '@/models/types'
+import type { Book, BookCover, BookFormatId, Entry, ResearchTopic } from '@/models/types'
 import { getFormat } from '@/models/formats'
 import type { StorageProvider } from '@/storage/StorageProvider'
 import { uid, now, todayYmd } from './utils'
@@ -10,6 +10,8 @@ export interface NewBookInput {
   format: BookFormatId
   cover: BookCover
   customTerms?: { singular: string; plural: string }
+  /** Initial standardized topics for a research notebook. */
+  researchTopics?: ResearchTopic[]
 }
 
 /**
@@ -43,6 +45,10 @@ export class Repository {
       cover: input.cover,
       createdAt: timestamp,
       updatedAt: timestamp,
+      // Research notebooks carry book-level dashboard state (topics/sources).
+      research: input.format === 'research'
+        ? { topics: input.researchTopics ?? [], savedSources: [] }
+        : undefined,
     }
     await this.storage.putBook(book)
     return book

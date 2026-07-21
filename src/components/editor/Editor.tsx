@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Entry } from '@/models/types'
+import type { Entry, EntryRef } from '@/models/types'
 import { useAutoSave, type SaveStatus } from '@/lib/useAutoSave'
 import { formatDate } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { RichToolbar } from './RichToolbar'
+import { ReferencesSection } from '@/components/refs/ReferencesSection'
 import './Editor.css'
 
 interface EditorProps {
@@ -14,7 +15,11 @@ interface EditorProps {
     title: string
     content: string
     entryDate?: string
+    refs: EntryRef[]
   }) => Promise<void> | void
+  /** Whether this format supports cross-journal references. */
+  supportsRefs?: boolean
+  onOpenRef?: (ref: EntryRef, entry: Entry) => void
 }
 
 function StatusLabel({ status }: { status: SaveStatus }) {
@@ -55,10 +60,17 @@ function toInitialHtml(raw: string): string {
     .join('')
 }
 
-export function Editor({ entry, showDate = false, onSave }: EditorProps) {
+export function Editor({
+  entry,
+  showDate = false,
+  onSave,
+  supportsRefs = false,
+  onOpenRef,
+}: EditorProps) {
   const [title, setTitle] = useState(entry.title)
   const [content, setContent] = useState(entry.content)
   const [entryDate, setEntryDate] = useState(entry.entryDate ?? '')
+  const [refs, setRefs] = useState<EntryRef[]>(entry.refs ?? [])
   const bodyRef = useRef<HTMLDivElement>(null)
 
   // Reset local state and re-seed the editable body when switching entries.
@@ -66,13 +78,14 @@ export function Editor({ entry, showDate = false, onSave }: EditorProps) {
     setTitle(entry.title)
     setContent(entry.content)
     setEntryDate(entry.entryDate ?? '')
+    setRefs(entry.refs ?? [])
     if (bodyRef.current) {
       bodyRef.current.innerHTML = toInitialHtml(entry.content)
     }
   }, [entry.id])
 
   const { status } = useAutoSave({
-    value: { title, content, entryDate: showDate ? entryDate : undefined },
+    value: { title, content, entryDate: showDate ? entryDate : undefined, refs },
     onSave,
     delay: 700,
   })
@@ -118,6 +131,15 @@ export function Editor({ entry, showDate = false, onSave }: EditorProps) {
           data-placeholder="Begin writing…"
           onInput={syncBody}
         />
+
+        {supportsRefs && (
+          <ReferencesSection
+            currentBookId={entry.bookId}
+            refs={refs}
+            onChange={setRefs}
+            onOpen={onOpenRef}
+          />
+        )}
       </div>
     </div>
   )

@@ -52,6 +52,18 @@ export function formatDate(iso: string): string {
   })
 }
 
+/** A compact date + time, e.g. "Apr 18, 2:07 PM" — used for "Updated" stamps. */
+export function formatDateTime(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 /** Today as a calendar date string "YYYY-MM-DD" in the user's local time. */
 export function todayYmd(): string {
   const d = new Date()

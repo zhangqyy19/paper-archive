@@ -110,9 +110,19 @@ export interface DreamData {
 
 /** One or more research topics that drive a notebook's dashboard. */
 export interface ResearchData {
-  topics: string[]
+  topics: ResearchTopic[]
   /** User-saved source URLs / feeds shown in the dashboard. */
   savedSources?: { id: string; label: string; url: string }[]
+}
+
+/**
+ * A standardized research topic chosen from a curated taxonomy. The notebook
+ * stores the stable `id` (so notebooks about the same subject share the same
+ * underlying category and providers) and displays the human-readable `label`.
+ */
+export interface ResearchTopic {
+  id: string
+  label: string
 }
 
 /** A single freeform object on a sketchbook canvas. */

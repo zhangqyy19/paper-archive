@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Book, Entry, EntryRef } from '@/models/types'
 import { useLibrary } from '@/lib/LibraryContext'
 import { getFormat } from '@/models/formats'
+import { getCoverColor } from '@/models/colors'
 import { Icon, type IconName } from '@/components/ui/Icon'
 import './ReferenceList.css'
 
@@ -9,6 +10,19 @@ interface ResolvedRef {
   ref: EntryRef
   book?: Book
   entry?: Entry
+}
+
+/** Strip HTML tags and collapse whitespace into a short plain-text preview. */
+function previewOf(html: string, max = 90): string {
+  const text = html
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return text.length > max ? `${text.slice(0, max).trimEnd()}…` : text
 }
 
 interface ReferenceListProps {
@@ -54,6 +68,8 @@ export function ReferenceList({ refs, onOpen, onRemove }: ReferenceListProps) {
       {resolved.map(({ ref, book, entry }) => {
         const missing = !entry
         const fmt = book ? getFormat(book.format) : null
+        const cover = book ? getCoverColor(book.cover.colorId ?? 'forest') : null
+        const preview = entry ? previewOf(entry.content) : ''
         return (
           <li key={ref.id} className={`refcard${missing ? ' is-missing' : ''}`}>
             <button
@@ -62,6 +78,11 @@ export function ReferenceList({ refs, onOpen, onRemove }: ReferenceListProps) {
               disabled={missing}
               onClick={() => entry && onOpen?.(ref, entry)}
             >
+              <span
+                className="refcard__spine"
+                style={cover ? { background: cover.base } : undefined}
+                aria-hidden="true"
+              />
               <span className="refcard__icon">
                 <Icon
                   name={(fmt?.icon as IconName) ?? 'book'}
@@ -75,6 +96,9 @@ export function ReferenceList({ refs, onOpen, onRemove }: ReferenceListProps) {
                 <span className="refcard__book">
                   {book?.title ?? 'Unknown journal'}
                 </span>
+                {!missing && preview && (
+                  <span className="refcard__preview">{preview}</span>
+                )}
               </span>
             </button>
             {onRemove && (

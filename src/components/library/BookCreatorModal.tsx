@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import type { Book, BookFormatId, CoverColorId } from '@/models/types'
+import type { Book, BookFormatId, CoverColorId, ResearchTopic } from '@/models/types'
 import type { NewBookInput } from '@/lib/repository'
 import { Modal } from '@/components/ui/Modal'
 import { Button } from '@/components/ui/Button'
@@ -7,6 +7,8 @@ import { Field, TextField, TextArea } from '@/components/ui/Field'
 import { BookCover } from './BookCover'
 import { FormatSelector } from './FormatSelector'
 import { CoverPicker } from './CoverPicker'
+import { TopicAutocomplete } from '@/components/research/TopicAutocomplete'
+import { Icon } from '@/components/ui/Icon'
 import './BookCreatorModal.css'
 
 interface BookCreatorModalProps {
@@ -25,6 +27,7 @@ export function BookCreatorModal({ open, onClose, onCreate }: BookCreatorModalPr
   const [singular, setSingular] = useState('')
   const [plural, setPlural] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [topics, setTopics] = useState<ResearchTopic[]>([])
 
   // A live preview book for the cover.
   const previewBook = useMemo<Book>(
@@ -46,6 +49,7 @@ export function BookCreatorModal({ open, onClose, onCreate }: BookCreatorModalPr
     setColorId(DEFAULT_COLOR)
     setSingular('')
     setPlural('')
+    setTopics([])
   }
 
   const handleClose = () => {
@@ -69,6 +73,7 @@ export function BookCreatorModal({ open, onClose, onCreate }: BookCreatorModalPr
                 plural: plural.trim() || 'Entries',
               }
             : undefined,
+        researchTopics: format === 'research' ? topics : undefined,
       })
       reset()
       onClose()
@@ -113,7 +118,7 @@ export function BookCreatorModal({ open, onClose, onCreate }: BookCreatorModalPr
                 <TextField
                   value={singular}
                   placeholder="Entry"
-                 onChange={(e) => setSingular(e.target.value)}
+                  onChange={(e) => setSingular(e.target.value)}
                 />
               </Field>
               <Field label="Many are called">
@@ -124,6 +129,33 @@ export function BookCreatorModal({ open, onClose, onCreate }: BookCreatorModalPr
                 />
               </Field>
             </div>
+          )}
+
+          {format === 'research' && (
+            <Field label="Topics" optional>
+              {topics.length > 0 && (
+                <div className="book-creator__topics">
+                  {topics.map((t) => (
+                    <span key={t.id} className="book-creator__topic">
+                      {t.label}
+                      <button
+                        type="button"
+                        className="book-creator__topic-remove"
+                        aria-label={`Remove ${t.label}`}
+                    onClick={() => setTopics((prev) => prev.filter((x) => x.id !== t.id))}
+                      >
+                        <Icon name="close" size={14} />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+              <TopicAutocomplete
+                selected={topics}
+                onAdd={(t) => setTopics((prev) => [...prev, t])}
+                placeholder="Add a research topic"
+              />
+            </Field>
           )}
 
           <Field label="Cover">

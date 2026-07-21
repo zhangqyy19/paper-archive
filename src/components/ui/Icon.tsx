@@ -38,6 +38,9 @@ export type IconName =
   | 'users'
   | 'map'
   | 'pin'
+  | 'refresh'
+  | 'trending'
+  | 'newspaper'
 
 
 interface IconProps {
@@ -238,6 +241,25 @@ const PATHS: Record<string, JSX.Element> = {
     <>
       <path d="M12 21c4-4.5 6-8 6-11a6 6 0 0 0-12 0c0 3 2 6.5 6 11z" />
       <circle cx="12" cy="10" r="2.4" />
+    </>
+  ),
+  refresh: (
+    <>
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+      <path d="M21 3v6h-6" />
+    </>
+  ),
+  trending: (
+    <>
+      <path d="M3 17l6-6 4 4 8-8" />
+      <path d="M15 7h6v6" />
+    </>
+  ),
+  newspaper: (
+    <>
+      <path d="M4 5h13v14H6a2 2 0 0 1-2-2z" />
+      <path d="M17 8h3v9a2 2 0 0 1-2 2" />
+      <path d="M7 8h7M7 11h7M7 14h5" />
     </>
   ),
 }

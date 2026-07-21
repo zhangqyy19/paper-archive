@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { DreamData, Entry } from '@/models/types'
+import type { DreamData, Entry, EntryRef } from '@/models/types'
 import {
   DREAM_SYMBOLS,
   getDreamSymbol,
@@ -9,6 +9,7 @@ import { useAutoSave, type SaveStatus } from '@/lib/useAutoSave'
 import { formatDate } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
 import { RichToolbar } from './RichToolbar'
+import { ReferencesSection } from '@/components/refs/ReferencesSection'
 import './Editor.css'
 import './DreamEditor.css'
 
@@ -18,7 +19,9 @@ interface DreamEditorProps {
     title: string
     content: string
     dream: DreamData
+    refs: EntryRef[]
   }) => Promise<void> | void
+  onOpenRef?: (ref: EntryRef, entry: Entry) => void
 }
 
 function StatusLabel({ status }: { status: SaveStatus }) {
@@ -53,10 +56,11 @@ function toInitialHtml(raw: string): string {
     .join('')
 }
 
-export function DreamEditor({ entry, onSave }: DreamEditorProps) {
+export function DreamEditor({ entry, onSave, onOpenRef }: DreamEditorProps) {
   const [title, setTitle] = useState(entry.title)
   const [content, setContent] = useState(entry.content)
   const [symbols, setSymbols] = useState<string[]>(entry.dream?.symbols ?? [])
+  const [refs, setRefs] = useState<EntryRef[]>(entry.refs ?? [])
   const [query, setQuery] = useState('')
   const [openSymbol, setOpenSymbol] = useState<string | null>(null)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -65,6 +69,7 @@ export function DreamEditor({ entry, onSave }: DreamEditorProps) {
     setTitle(entry.title)
     setContent(entry.content)
     setSymbols(entry.dream?.symbols ?? [])
+    setRefs(entry.refs ?? [])
     setQuery('')
     setOpenSymbol(null)
     if (bodyRef.current) {
@@ -77,6 +82,7 @@ export function DreamEditor({ entry, onSave }: DreamEditorProps) {
       title,
       content,
       dream: { symbols: symbols.length ? symbols : undefined },
+      refs,
     },
     onSave,
     delay: 700,
@@ -144,6 +150,13 @@ export function DreamEditor({ entry, onSave }: DreamEditorProps) {
             aria-label="Dream text"
             data-placeholder="What did you dream…"
             onInput={syncBody}
+          />
+
+          <ReferencesSection
+            currentBookId={entry.bookId}
+            refs={refs}
+            onChange={setRefs}
+            onOpen={onOpenRef}
           />
         </div>
 

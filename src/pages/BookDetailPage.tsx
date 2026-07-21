@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import type { Book, Entry, EntryRef } from '@/models/types'
+import type { Book, Entry, EntryRef, ResearchData } from '@/models/types'
 import { getFormat } from '@/models/formats'
 import { useLibrary, useEntries } from '@/lib/LibraryContext'
 import { Button } from '@/components/ui/Button'
@@ -12,6 +12,7 @@ import { PoetryEditor } from '@/components/editor/PoetryEditor'
 import { DreamEditor } from '@/components/editor/DreamEditor'
 import { TravelEditor } from '@/components/editor/TravelEditor'
 import { PlacesMap } from '@/components/map/PlacesMap'
+import { ResearchDashboard } from '@/components/research/ResearchDashboard'
 import { Icon } from '@/components/ui/Icon'
 import './BookDetailPage.css'
 
@@ -23,8 +24,9 @@ export function BookDetailPage() {
 
   const [book, setBook] = useState<Book | null>(null)
   const [activeId, setActiveId] = useState<string | null>(null)
-  // 'write' shows the entry editor; 'map' shows the aggregated places map.
-  const [view, setView] = useState<'write' | 'map'>('write')
+  // 'write' shows the entry editor; 'map' shows the aggregated places map;
+  // 'dashboard' shows a format-specific aggregated home (e.g. research).
+  const [view, setView] = useState<'write' | 'map' | 'dashboard'>('write')
 
   // Resolve the book — prefer the already-loaded list, fall back to a direct read.
   useEffect(() => {
@@ -68,12 +70,20 @@ export function BookDetailPage() {
   const datedEntries = caps?.datedEntries ?? false
   // Formats declaring a 'map' view (travel) get a Write/Map toggle in the main pane.
   const hasMap = caps?.views.includes('map') ?? false
+  // Formats declaring a dashboard (research) get a Dashboard/Entries toggle,
+  // and open on the dashboard by default.
+  const hasDashboard = caps?.hasDashboard ?? false
   const term =
     book?.format === 'custom' && book.customTerms
       ? book.customTerms
       : format
         ? { singular: format.singular, plural: format.plural }
         : { singular: 'Entry', plural: 'Entries' }
+
+  // Open notebooks with a dashboard (research) on that dashboard by default.
+  useEffect(() => {
+    if (hasDashboard) setView('dashboard')
+  }, [hasDashboard, book?.id])
 
   const handleCreateEntry = async () => {
     if (!book) return
@@ -88,6 +98,13 @@ export function BookDetailPage() {
     if (updated) {
       setEntries((prev) => prev.map((e) => (e.id === updated.id ? updated : e)))
     }
+  }
+
+  // Persist book-level research dashboard data (topics/saved sources).
+  const handleSaveResearch = async (research: ResearchData) => {
+    if (!book) return
+    const updated = await repo.updateBook(book.id, { research })
+    if (updated) setBook(updated)
   }
 
   const handleDelete = async () => {
@@ -116,15 +133,22 @@ export function BookDetailPage() {
       case 'recipe':
         return <RecipeEditor key={entry.id} entry={entry} onSave={handleSave} onOpenRef={handleOpenRef} />
       case 'poetry':
-        return <PoetryEditor key={entry.id} entry={entry} onSave={handleSave} />
+        return <PoetryEditor key={entry.id} entry={entry} onSave={handleSave} onOpenRef={handleOpenRef} />
       case 'dream':
-        return <DreamEditor key={entry.id} entry={entry} onSave={handleSave} />
+        return <DreamEditor key={entry.id} entry={entry} onSave={handleSave} onOpenRef={handleOpenRef} />
       case 'travel':
         return <TravelEditor key={entry.id} entry={entry} onSave={handleSave} onOpenRef={handleOpenRef} />
       case 'text':
       default:
         return (
-          <Editor key={entry.id} entry={entry} showDate={datedEntries} onSave={handleSave} />
+          <Editor
+            key={entry.id}
+            entry={entry}
+            showDate={datedEntries}
+            onSave={handleSave}
+            supportsRefs={caps?.supportsRefs ?? false}
+            onOpenRef={handleOpenRef}
+          />
         )
     }
   }
@@ -203,7 +227,28 @@ export function BookDetailPage() {
           </div>
         )}
 
-        {hasMap && view === 'map' ? (
+        {hasDashboard && (
+          <div className="book-detail__viewbar">
+            <button
+              type="button"
+              className={`book-detail__viewtab${view === 'dashboard' ? ' is-active' : ''}`}
+              onClick={() => setView('dashboard')}
+            >
+              <Icon name="flask" size={15} /> Dashboard
+            </button>
+            <button
+              type="button"
+              className={`book-detail__viewtab${view !== 'dashboard' ? ' is-active' : ''}`}
+              onClick={() => setView('write')}
+            >
+              <Icon name="pin" size={15} /> {term.plural}
+            </button>
+          </div>
+        )}
+
+        {hasDashboard && view === 'dashboard' ? (
+          <ResearchDashboard book={book} onSave={handleSaveResearch} />
+        ) : hasMap && view === 'map' ? (
           <PlacesMap
             entries={entries}
             activeId={activeId}

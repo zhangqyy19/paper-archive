@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Entry, PoemStyleId, PoetryData } from '@/models/types'
+import type { Entry, EntryRef, PoemStyleId, PoetryData } from '@/models/types'
 import { POEM_STYLES, getPoemStyle } from '@/models/poetryStyles'
 import { useAutoSave, type SaveStatus } from '@/lib/useAutoSave'
 import { formatDate } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
 import { RichToolbar } from './RichToolbar'
+import { ReferencesSection } from '@/components/refs/ReferencesSection'
 import './Editor.css'
 import './PoetryEditor.css'
 
@@ -14,7 +15,9 @@ interface PoetryEditorProps {
     title: string
     content: string
     poetry: PoetryData
+    refs: EntryRef[]
   }) => Promise<void> | void
+  onOpenRef?: (ref: EntryRef, entry: Entry) => void
 }
 
 function StatusLabel({ status }: { status: SaveStatus }) {
@@ -49,10 +52,11 @@ function toInitialHtml(raw: string): string {
     .join('')
 }
 
-export function PoetryEditor({ entry, onSave }: PoetryEditorProps) {
+export function PoetryEditor({ entry, onSave, onOpenRef }: PoetryEditorProps) {
   const [title, setTitle] = useState(entry.title)
   const [content, setContent] = useState(entry.content)
   const [styleId, setStyleId] = useState<PoemStyleId | ''>(entry.poetry?.styleId ?? '')
+  const [refs, setRefs] = useState<EntryRef[]>(entry.refs ?? [])
   const [guideOpen, setGuideOpen] = useState(true)
   const [pickerOpen, setPickerOpen] = useState(false)
   const bodyRef = useRef<HTMLDivElement>(null)
@@ -62,6 +66,7 @@ export function PoetryEditor({ entry, onSave }: PoetryEditorProps) {
     setTitle(entry.title)
     setContent(entry.content)
     setStyleId(entry.poetry?.styleId ?? '')
+    setRefs(entry.refs ?? [])
     if (bodyRef.current) {
       bodyRef.current.innerHTML = toInitialHtml(entry.content)
     }
@@ -96,6 +101,7 @@ export function PoetryEditor({ entry, onSave }: PoetryEditorProps) {
       title,
       content,
       poetry: { styleId: styleId || undefined },
+      refs,
     },
     onSave,
     delay: 700,
@@ -247,6 +253,13 @@ export function PoetryEditor({ entry, onSave }: PoetryEditorProps) {
           aria-label="Poem text"
           data-placeholder="Begin your poem…"
           onInput={syncBody}
+        />
+
+        <ReferencesSection
+          currentBookId={entry.bookId}
+          refs={refs}
+          onChange={setRefs}
+          onOpen={onOpenRef}
         />
       </div>
     </div>
