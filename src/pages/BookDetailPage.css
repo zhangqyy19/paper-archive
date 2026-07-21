@@ -5,9 +5,9 @@
   background: var(--color-surface);
 }
 
-/* Collapsed: hide the sidebar column entirely; a floating tab re-opens it. */
+/* Collapsed: drop the sidebar column so the main content expands to full width. */
 .book-detail.is-collapsed {
-  grid-template-columns: 0 1fr;
+  grid-template-columns: 1fr;
 }
 
 .book-detail.is-collapsed .book-detail__sidebar {
