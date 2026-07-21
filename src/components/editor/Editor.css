@@ -8,6 +8,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
   padding: 1rem 1.5rem;
   font-size: 0.8rem;
   color: var(--color-ink-faint);
@@ -37,8 +38,8 @@
   flex: 1;
   width: 100%;
   max-width: var(--reading-w);
-  margin: 0 auto;
-  padding: 2rem 1.5rem 6rem;
+  margin: 0 auto 3rem;
+  padding: 2rem 1.5rem 4rem;
   background:
     linear-gradient(var(--surface) 0 0) padding-box,
     repeating-linear-gradient(
@@ -48,7 +49,7 @@
       rgba(120, 100, 80, 0.06) 2.15rem,
       rgba(120, 100, 80, 0.06) calc(2.15rem + 1px)
     );
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border-radius: var(--radius-lg);
   box-shadow: var(--shadow-md);
 }
 
@@ -143,7 +144,7 @@
 
 @media (max-width: 640px) {
   .editor__paper {
-    padding: 1.5rem 1.2rem 5rem;
+    padding: 1.5rem 1.2rem 3rem;
   }
   .editor__title {
     font-size: 1.6rem;

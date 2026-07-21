@@ -8,6 +8,16 @@
   border-bottom: 1px dashed var(--color-line);
 }
 
+/* Location search living inside the top toolbar row. */
+.travel__place--bar {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  position: relative;
+}
+
 .travel__search {
   position: relative;
   display: flex;
@@ -129,7 +139,9 @@
   text-overflow: ellipsis;
 }
 
-.travel__pinned {
-  margin-top: 0.85rem;
-  max-width: 30rem;
+.travel__note {
+  padding: 0.7rem 0.85rem;
+  font-family: var(--font-serif-soft);
+  font-size: 0.85rem;
+  color: var(--color-ink-faint);
 }

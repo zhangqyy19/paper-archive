@@ -1,11 +1,12 @@
 /**
- * Lightweight geocoding via OpenStreetMap's Nominatim service.
+ * Lightweight geocoding via the Open-Meteo Geocoding API.
  *
- * No API key is required. We ask for a short list of candidates so the search
- * bar can suggest "Kyoto → Kyoto, Japan" and pin the chosen result.
+ * Chosen over OpenStreetMap/Nominatim because Open-Meteo is free, needs no API
+ * key, and — crucially — sends permissive CORS headers, so browser requests
+ * actually succeed instead of being blocked. We ask for a short list of
+ * candidates so the search bar can suggest "Kyoto → Kyoto, Japan".
  *
- * Nominatim asks callers to keep request volume modest and to identify the
- * app; we debounce in the UI and send a descriptive Referer via the browser.
+ * Docs: https://open-meteo.com/en/docs/geocoding-api
  */
 
 export interface GeocodeResult {
@@ -17,15 +18,24 @@ export interface GeocodeResult {
   lng: number
 }
 
-const ENDPOINT = 'https://nominatim.openstreetmap.org/search'
+const ENDPOINT = 'https://geocoding-api.open-meteo.com/v1/search'
 
-/** Build a concise "City, Country" label from a verbose display name. */
-function toShortName(display: string): string {
-  const parts = display.split(',').map((p) => p.trim())
-  if (parts.length <= 2) return display
-  const city = parts[0]
-  const country = parts[parts.length - 1]
-  return `${city}, ${country}`
+interface OpenMeteoPlace {
+  name: string
+  latitude: number
+  longitude: number
+  country?: string
+  admin1?: string
+}
+
+/** Assemble a friendly "City, Region, Country" full name from API fields. */
+function toFullName(p: OpenMeteoPlace): string {
+  return [p.name, p.admin1, p.country].filter(Boolean).join(', ')
+}
+
+/** A concise "City, Country" label for pins and the input. */
+function toShortName(p: OpenMeteoPlace): string {
+  return [p.name, p.country].filter(Boolean).join(', ')
 }
 
 /**
@@ -40,31 +50,41 @@ export async function geocode(
   if (q.length < 2) return []
 
   const url = new URL(ENDPOINT)
-  url.searchParams.set('q', q)
-  url.searchParams.set('format', 'jsonv2')
-  url.searchParams.set('limit', '5')
-  url.searchParams.set('addressdetails', '0')
+  url.searchParams.set('name', q)
+  url.searchParams.set('count', '5')
+  url.searchParams.set('language', 'en')
+  url.searchParams.set('format', 'json')
 
-  const res = await fetch(url.toString(), {
-    signal,
-    headers: { Accept: 'application/json' },
-  })
+  // Guarantee the request never hangs forever: abort after 8s even if the
+  // caller's signal never fires. We race the caller's signal with our timeout.
+  const timeout = new AbortController()
+  const timer = setTimeout(() => timeout.abort(), 8000)
+  const onAbort = () => timeout.abort()
+  signal?.addEventListener('abort', onAbort)
+
+  let res: Response
+  try {
+    res = await fetch(url.toString(), {
+      signal: timeout.signal,
+      headers: { Accept: 'application/json' },
+    })
+  } finally {
+    clearTimeout(timer)
+    signal?.removeEventListener('abort', onAbort)
+  }
   if (!res.ok) throw new Error(`Geocoding failed (${res.status})`)
 
-  const raw: Array<{
-    display_name: string
-    lat: string
-    lon: string
-  }> = await res.json()
+  const data: { results?: OpenMeteoPlace[] } = await res.json()
+  const results = data.results ?? []
 
-  return raw
-    .map((r) => {
-      const lat = Number(r.lat)
-      const lng = Number(r.lon)
+  return results
+    .map((p) => {
+      const lat = Number(p.latitude)
+      const lng = Number(p.longitude)
       if (Number.isNaN(lat) || Number.isNaN(lng)) return null
       return {
-        name: r.display_name,
-        shortName: toShortName(r.display_name),
+        name: toFullName(p),
+        shortName: toShortName(p),
         lat,
         lng,
       } satisfies GeocodeResult

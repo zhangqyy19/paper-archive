@@ -2,7 +2,6 @@ import { useMemo } from 'react'
 import type { Entry } from '@/models/types'
 import { formatDate } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
-import { EmptyState } from '@/components/ui/EmptyState'
 import { WorldMap, type MapPin } from './WorldMap'
 import './PlacesMap.css'
 
@@ -53,12 +52,23 @@ export function PlacesMap({ entries, activeId, onSelect }: PlacesMapProps) {
 
   if (located.length === 0) {
     return (
-      <div className="placesmap placesmap--empty">
-        <EmptyState
-          icon="map"
-          title="No places pinned yet"
-          description="Add a location to a travel entry and it’ll appear on your map."
-        />
+      <div className="placesmap">
+        <header className="placesmap__head">
+          <h2 className="placesmap__title">Places I’ve been</h2>
+          <p className="placesmap__count">No places pinned yet</p>
+        </header>
+
+        <div className="placesmap__body placesmap__body--empty">
+          <div className="placesmap__map">
+            <WorldMap pins={[]} />
+          </div>
+          <div className="placesmap__hint">
+            <Icon name="pin" size={18} />
+            <p>
+              Add a location to a travel entry and it’ll appear on your map.
+            </p>
+          </div>
+        </div>
       </div>
     )
   }

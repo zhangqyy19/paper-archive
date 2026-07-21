@@ -6,7 +6,6 @@ import { Icon } from '@/components/ui/Icon'
 import { DatePicker } from '@/components/ui/DatePicker'
 import { RichToolbar } from './RichToolbar'
 import { ReferencesSection } from '@/components/refs/ReferencesSection'
-import { WorldMap } from '@/components/map/WorldMap'
 import './Editor.css'
 import './TravelEditor.css'
 
@@ -70,6 +69,7 @@ export function TravelEditor({ entry, onSave, onOpenRef }: TravelEditorProps) {
   const [results, setResults] = useState<GeocodeResult[]>([])
   const [searching, setSearching] = useState(false)
   const [open, setOpen] = useState(false)
+  const [error, setError] = useState(false)
 
   const bodyRef = useRef<HTMLDivElement>(null)
   const boxRef = useRef<HTMLDivElement>(null)
@@ -84,8 +84,7 @@ export function TravelEditor({ entry, onSave, onOpenRef }: TravelEditorProps) {
     setQuery(entry.travel?.location?.name ?? '')
     setResults([])
     setOpen(false)
-    if (bodyRef.current) {
-      bodyRef.current.innerHTML = toInitialHtml(entry.content)
+    if (bodyRef.current) {      bodyRef.current.innerHTML = toInitialHtml(entry.content)
     }
   }, [entry.id])
 
@@ -99,21 +98,28 @@ export function TravelEditor({ entry, onSave, onOpenRef }: TravelEditorProps) {
       return
     }
     const controller = new AbortController()
+    let aborted = false
     setSearching(true)
     const t = setTimeout(async () => {
       try {
         const found = await geocode(q, controller.signal)
         setResults(found)
+        setError(false)
         setOpen(true)
-      } catch (err) {
-        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+      } catch {
+        // Ignore aborts caused by the user typing again (cleanup below).
+        // A timeout inside geocode surfaces as its own error and should show.
+        if (!aborted) {
           setResults([])
+          setError(true)
+          setOpen(true)
         }
       } finally {
-        setSearching(false)
+        if (!aborted) setSearching(false)
       }
     }, 450)
     return () => {
+      aborted = true
       clearTimeout(t)
       controller.abort()
     }
@@ -177,21 +183,7 @@ export function TravelEditor({ entry, onSave, onOpenRef }: TravelEditorProps) {
           onChange={setDateVisited}
           ariaLabel="Date visited"
         />
-        <StatusLabel status={status} />
-      </div>
-
-      <RichToolbar onCommand={syncBody} getEditor={() => bodyRef.current} />
-
-      <div className="editor__paper travel__paper">
-        <input
-          className="editor__title"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Where did you go?"
-          aria-label="Entry title"
-        />
-
-        <div className="travel__place" ref={boxRef}>
+        <div className="travel__place travel__place--bar" ref={boxRef}>
           <div className="travel__search">
             <Icon name="pin" size={16} />
             <input
@@ -199,13 +191,14 @@ export function TravelEditor({ entry, onSave, onOpenRef }: TravelEditorProps) {
               onChange={(e) => {
                 setQuery(e.target.value)
                 if (location) setLocation(null)
+                setError(false)
               }}
               onFocus={() => results.length > 0 && setOpen(true)}
-              placeholder="Search a place — e.g. Kyoto"
+              placeholder="Add a location — e.g. Kyoto"
               aria-label="Search a place"
             />
             {searching && <span className="travel__spinner" aria-hidden />}
-            {location && (
+          {location && (
               <button
                 type="button"
                 className="travel__clear"
@@ -237,24 +230,31 @@ export function TravelEditor({ entry, onSave, onOpenRef }: TravelEditorProps) {
                 ))}
               </ul>
             )}
-          </div>
 
-          {location?.lat != null && location?.lng != null && (
-            <div className="travel__pinned">
-              <WorldMap
-                pins={[
-                  {
-                    id: entry.id,
-                    label: location.name,
-                    lat: location.lat,
-                    lng: location.lng,
-                  },
-                ]}
-                activeId={entry.id}
-              />
-            </div>
-          )}
+            {open && !searching && results.length === 0 && (
+              <div className="travel__results travel__note">
+                {error
+                  ? 'Couldn’t reach the place search. Check your connection.'
+                  : query.trim().length >= 2
+                    ? 'No matching places found.'
+                    : 'Keep typing to search…'}
+              </div>
+            )}
+          </div>
         </div>
+        <StatusLabel status={status} />
+      </div>
+
+      <RichToolbar onCommand={syncBody} getEditor={() => bodyRef.current} />
+
+      <div className="editor__paper travel__paper">
+        <input
+          className="editor__title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Where did you go?"
+          aria-label="Entry title"
+        />
 
         <div
           ref={bodyRef}
@@ -273,7 +273,7 @@ export function TravelEditor({ entry, onSave, onOpenRef }: TravelEditorProps) {
           refs={refs}
           onChange={setRefs}
           onOpen={onOpenRef}
-          label="Linked places & notes"
+          label="Linked Places & Notes"
         />
       </div>
     </div>
