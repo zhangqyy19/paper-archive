@@ -1,12 +1,18 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Book, ResearchData, ResearchTopic } from '@/models/types'
 import {
   getResearchProvider,
   refreshResearchProvider,
 } from '@/lib/research/mockProvider'
 import type { FeedItem, TrendingItem } from '@/lib/research/provider'
+import {
+  cacheTimestamp,
+  isStale,
+  readCache,
+  writeCache,
+} from '@/lib/research/newsCache'
 import { getTopicDef } from '@/lib/research/taxonomy'
-import { formatDate, formatDateTime } from '@/lib/utils'
+import { formatDate, relativeTime } from '@/lib/utils'
 import { Icon } from '@/components/ui/Icon'
 import { TopicAutocomplete } from './TopicAutocomplete'
 import './ResearchDashboard.css'
@@ -45,31 +51,64 @@ export function ResearchDashboard({ book, onSave }: ResearchDashboardProps) {
   const [loading, setLoading] = useState(false)
   const [refreshedAt, setRefreshedAt] = useState<number | null>(null)
 
-  const load = useCallback(
-    async (provider = getResearchProvider()) => {
+  // A monotonically-increasing token guards against out-of-order fetches: if
+  // the topic set changes (or a manual refresh fires) while a slower request is
+  // still in flight, the stale response is discarded instead of overwriting the
+  // newer one.
+  const fetchToken = useRef(0)
+
+  // Fetch fresh sections from the providers and persist them to the cache.
+  // `force` bypasses both the provider's in-memory cache and our persisted one
+  // — the manual Refresh button always shows what's newest right now.
+  const fetchLive = useCallback(
+    async (force: boolean) => {
       if (topicIds.length === 0) {
         setSections(EMPTY_SECTIONS)
+        setRefreshedAt(null)
         return
       }
+      const token = ++fetchToken.current
       setLoading(true)
+      const provider = force ? refreshResearchProvider() : getResearchProvider()
       const [news, publications, trending] = await Promise.all([
         provider.getLatestNews(topicIds),
         provider.getRecentPublications(topicIds),
         provider.getTrending(topicIds),
       ])
-      setSections({ news, publications, trending })
-      setRefreshedAt(Date.now())
+      // A newer request superseded this one — drop the result.
+      if (token !== fetchToken.current) return
+      const next: Sections = { news, publications, trending }
+      setSections(next)
+      const at = writeCache(topicIds, next)
+      setRefreshedAt(at)
       setLoading(false)
     },
     [topicIds],
   )
 
-  // Aggregate whenever the topic set changes.
+  // On mount / topic change: paint cached content instantly for a responsive
+  // feel, then auto-refresh in the background only when the cache is stale
+  // (older than 24h or from a previous calendar day). The user never has to
+  // manually refresh just to see today's news.
   useEffect(() => {
-    void load()
-  }, [load])
+    if (topicIds.length === 0) {
+      setSections(EMPTY_SECTIONS)
+      setRefreshedAt(null)
+      return
+    }
+    const cached = readCache(topicIds)
+    if (cached) {
+      setSections(cached)
+      setRefreshedAt(cacheTimestamp(topicIds))
+    }
+    if (isStale(topicIds)) {
+      void fetchLive(false)
+    }
+  }, [topicIds, fetchLive])
 
-  const refresh = () => load(refreshResearchProvider())
+  // Manual refresh always bypasses every cache. Scroll position is naturally
+  // preserved because we mutate section state in place rather than remounting.
+  const refresh = () => void fetchLive(true)
 
   const addTopic = (topic: ResearchTopic) => {
     if (topics.some((t) => t.id === topic.id)) return
@@ -81,6 +120,15 @@ export function ResearchDashboard({ book, onSave }: ResearchDashboardProps) {
   }
 
   const hasTopics = topics.length > 0
+
+  // Re-render every 30s so the relative "Updated …" label keeps ticking
+  // ("just now" → "2 minutes ago") without any user interaction.
+  const [, forceTick] = useState(0)
+  useEffect(() => {
+    if (!refreshedAt) return
+    const id = setInterval(() => forceTick((n) => n + 1), 30_000)
+    return () => clearInterval(id)
+  }, [refreshedAt])
 
   return (
     <div className="research">
@@ -94,7 +142,9 @@ export function ResearchDashboard({ book, onSave }: ResearchDashboardProps) {
         <div className="research__head-actions">
           {refreshedAt && (
             <span className="research__refreshed">
-              Updated {formatDateTime(new Date(refreshedAt).toISOString())}
+              {loading
+                ? 'Updating…'
+                : `Updated ${relativeTime(new Date(refreshedAt).toISOString())}`}
             </span>
           )}
           <button
@@ -103,7 +153,12 @@ export function ResearchDashboard({ book, onSave }: ResearchDashboardProps) {
             onClick={refresh}
             disabled={!hasTopics || loading}
           >
-            <Icon name="refresh" size={15} /> Refresh
+            <Icon
+              name="refresh"
+              size={15}
+              className={loading ? 'research__refresh-icon--spin' : undefined}
+            />{' '}
+            Refresh
           </button>
         </div>
       </header>

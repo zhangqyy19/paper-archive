@@ -6,9 +6,32 @@ import { topicKeywords, topicQuery } from '../taxonomy'
 // degrade to [] if the proxy or feed is unavailable. Swapping in a dedicated
 // News API later means replacing only this file.
 
-// Public CORS proxy that returns the raw body. If it's down, we return [] and
-// the dashboard shows an elegant empty state rather than an error.
-const PROXY = 'https://api.allorigins.win/raw?url='
+// Public CORS proxies that return the raw body. We try them in order and fall
+// back to the next one if a proxy is down (e.g. allorigins started returning
+// 520s), so a single flaky proxy no longer empties the whole dashboard. Each
+// entry maps a target URL to a fully-formed proxied URL.
+const PROXIES: Array<(target: string) => string> = [
+  (t) => `https://corsproxy.io/?url=${encodeURIComponent(t)}`,
+  (t) => `https://api.allorigins.win/raw?url=${encodeURIComponent(t)}`,
+  (t) => `https://thingproxy.freeboard.io/fetch/${t}`,
+]
+
+// Fetch a URL through the proxy list, returning the first response body that
+// looks like a valid RSS feed. Returns '' when every proxy fails.
+async function fetchViaProxy(target: string): Promise<string> {
+  for (const proxy of PROXIES) {
+    try {
+      const res = await fetch(proxy(target))
+      if (!res.ok) continue
+      const body = await res.text()
+      // A working feed contains RSS items; anything else is an error page.
+      if (body.includes('<item')) return body
+    } catch {
+      // Network/CORS error on this proxy — try the next one.
+    }
+  }
+  return ''
+}
 
 function feedUrl(query: string): string {
   // Quote the query so Google News treats it as a phrase — a bare query like
@@ -69,9 +92,8 @@ function relevant(items: FeedItem[], keywords: string[]): FeedItem[] {
 async function fetchTopic(topicId: string, max: number): Promise<FeedItem[]> {
   try {
     const target = feedUrl(topicQuery(topicId))
-    const res = await fetch(`${PROXY}${encodeURIComponent(target)}`)
-    if (!res.ok) return []
-    const xml = await res.text()
+    const xml = await fetchViaProxy(target)
+    if (!xml) return []
     // Over-fetch, then filter to genuinely on-topic items and trim to `max`.
     const parsed = parseRss(xml, topicId, max * 3)
     return relevant(parsed, topicKeywords(topicId)).slice(0, max)

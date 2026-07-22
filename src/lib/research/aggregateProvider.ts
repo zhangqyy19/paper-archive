@@ -5,6 +5,7 @@ import type {
   TrendingItem,
 } from './provider'
 import { getTopicDef } from './taxonomy'
+import { cleanFeedItems } from './sanitize'
 
 // Aggregates several ResearchProviders behind the single ResearchProvider the
 // dashboard talks to. Responsibilities:
@@ -44,7 +45,13 @@ async function settle<T>(p: Promise<T[]>): Promise<T[]> {
 }
 
 function byNewest(a: FeedItem, b: FeedItem): number {
-  return (b.publishedAt ?? '').localeCompare(a.publishedAt ?? '')
+  // Items with a known date sort newest-first; undated items sink to the bottom
+  // so the freshest, verifiable content always leads each section.
+  const da = a.publishedAt ?? ''
+  const db = b.publishedAt ?? ''
+  if (da && !db) return -1
+  if (!da && db) return 1
+  return db.localeCompare(da)
 }
 
 function dedupe(items: FeedItem[]): FeedItem[] {
@@ -96,7 +103,11 @@ export class AggregateProvider implements ResearchProvider, NamedProvider {
     cap: number,
   ): Promise<FeedItem[]> {
     const batches = await Promise.all(this.providers.map((p) => settle(call(p))))
-    return dedupe(batches.flat()).sort(byNewest).slice(0, cap)
+    // Sanitize in the data layer so every provider's output is normalized to
+    // clean plain text before the UI ever sees it, then de-dupe, sort
+    // newest-first, and cap.
+    const cleaned = cleanFeedItems(batches.flat())
+    return dedupe(cleaned).sort(byNewest).slice(0, cap)
   }
 
   async getLatestNews(topicIds: string[]): Promise<FeedItem[]> {

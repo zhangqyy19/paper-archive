@@ -60,6 +60,21 @@
   cursor: default;
 }
 
+/* Subtle spin while a fetch is in flight, so the Refresh button reads as busy. */
+.research__refresh-icon--spin {
+  animation: research-spin 0.9s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes research-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .research__topics {
   display: flex;
   flex-direction: column;
