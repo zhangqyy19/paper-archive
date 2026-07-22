@@ -10,6 +10,7 @@ import { BookCard } from '@/components/library/BookCard'
 import { BookCreatorModal } from '@/components/library/BookCreatorModal'
 import { RenameDialog } from '@/components/library/RenameDialog'
 import { ConfirmDialog } from '@/components/library/ConfirmDialog'
+import { CoverDialog } from '@/components/library/CoverDialog'
 import './LibraryPage.css'
 
 const SORT_OPTIONS = [
@@ -39,6 +40,7 @@ export function LibraryPage() {
   const [creating, setCreating] = useState(false)
   const [renaming, setRenaming] = useState<Book | null>(null)
   const [deleting, setDeleting] = useState<Book | null>(null)
+  const [editingCover, setEditingCover] = useState<Book | null>(null)
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase()
@@ -113,7 +115,14 @@ export function LibraryPage() {
       ) : (
         <div className="library__grid fade-in">
           {visible.map((book) => (
-            <BookCard key={book.id} book={book} onOpen={openBook} onRename={setRenaming} onDelete={setDeleting} />
+            <BookCard
+              key={book.id}
+              book={book}
+              onOpen={openBook}
+              onRename={setRenaming}
+              onEditCover={setEditingCover}
+              onDelete={setDeleting}
+            />
           ))}
         </div>
       )}
@@ -142,6 +151,15 @@ export function LibraryPage() {
         onClose={() => setDeleting(null)}
         onConfirm={() => {
           if (deleting) void deleteBook(deleting.id)
+        }}
+      />
+
+      <CoverDialog
+        open={editingCover !== null}
+        book={editingCover}
+        onClose={() => setEditingCover(null)}
+        onSave={(colorId) => {
+          if (editingCover) void updateBook(editingCover.id, { cover: { kind: 'color', colorId } })
         }}
       />
     </div>

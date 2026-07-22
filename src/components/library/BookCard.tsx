@@ -10,10 +10,11 @@ interface BookCardProps {
   book: Book
   onOpen: (book: Book) => void
   onRename?: (book: Book) => void
+  onEditCover?: (book: Book) => void
   onDelete?: (book: Book) => void
 }
 
-export function BookCard({ book, onOpen, onRename, onDelete }: BookCardProps) {
+export function BookCard({ book, onOpen, onRename, onEditCover, onDelete }: BookCardProps) {
   const format = getFormat(book.format)
   const label =
     book.format === 'custom' && book.customTerms ? book.customTerms.plural : format.plural
@@ -38,7 +39,7 @@ export function BookCard({ book, onOpen, onRename, onDelete }: BookCardProps) {
     }
   }, [menu])
 
-  const hasMenu = Boolean(onRename || onDelete)
+  const hasMenu = Boolean(onRename || onEditCover || onDelete)
 
   const openMenu = (e: React.MouseEvent) => {
     if (!hasMenu) return
@@ -89,7 +90,23 @@ export function BookCard({ book, onOpen, onRename, onDelete }: BookCardProps) {
               <span>Rename</span>
             </button>
           )}
-          {onRename && onDelete && <div className="book-card__menu-divider" />}
+          {onEditCover && (
+            <button
+              type="button"
+              className="book-card__menu-item"
+              role="menuitem"
+              onClick={() => {
+                setMenu(null)
+                onEditCover(book)
+              }}
+            >
+              <Icon name="sparkle" size={16} />
+              <span>Edit cover</span>
+            </button>
+          )}
+          {(onRename || onEditCover) && onDelete && (
+            <div className="book-card__menu-divider" />
+          )}
           {onDelete && (
             <button
               type="button"
